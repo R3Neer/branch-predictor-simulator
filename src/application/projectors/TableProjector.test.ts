@@ -29,6 +29,14 @@ describe("TableProjector", () => {
     expect(view.hiddenUntilRequested).toBe(false);
     expect(view.columns.map((column) => column.label)).toContain("Prediction");
     expect(view.rows[0].cells.prediction).toEqual({ value: "NT", hidden: false });
+    expect(view.rows[0].cells.hit).toEqual({ value: "Miss", hidden: false });
+  });
+
+  it("localizes miss values in Spanish solution mode", () => {
+    const trace = buildTrace();
+    const view = new TableProjector().project(trace, { mode: "solution", language: "es" });
+
+    expect(view.rows[0].cells.hit).toEqual({ value: "Fallo", hidden: false });
   });
 });
 

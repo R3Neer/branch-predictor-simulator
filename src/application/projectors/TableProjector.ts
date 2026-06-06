@@ -39,6 +39,8 @@ const labels: Record<Language, Record<string, string>> = {
     prediction: "Prediccion",
     actual: "Real",
     hit: "Acierto",
+    hitValue: "Acierto",
+    missValue: "Fallo",
     counterAfter: "Contador despues"
   },
   en: {
@@ -49,6 +51,8 @@ const labels: Record<Language, Record<string, string>> = {
     prediction: "Prediction",
     actual: "Actual",
     hit: "Hit",
+    hitValue: "Hit",
+    missValue: "Miss",
     counterAfter: "Counter after"
   }
 };
@@ -79,7 +83,10 @@ export class TableProjector {
           counterBefore: maybeHidden(step.predictionTrace.counterBefore ?? "", solutionHidden),
           prediction: maybeHidden(step.prediction, solutionHidden),
           actual: visible(step.actual),
-          hit: maybeHidden(step.hit ? labels[options.language].hit : "Miss", solutionHidden),
+          hit: maybeHidden(
+            step.hit ? labels[options.language].hitValue : labels[options.language].missValue,
+            solutionHidden
+          ),
           counterAfter: maybeHidden(step.updateTrace.counterAfter ?? "", solutionHidden)
         }
       }))
