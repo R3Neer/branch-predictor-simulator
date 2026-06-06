@@ -127,6 +127,7 @@ Usaremos agentes de Codex solo para tareas separables. El programador jefe manti
 | Agente | Tipo Codex | Responsabilidad | Cuando usarlo |
 | --- | --- | --- | --- |
 | Guardian documental | `explorer` | Revisar coherencia entre requisitos, arquitectura, politica QA, decisiones operativas y codigo. No modifica archivos. | Antes de hitos, cambios de alcance, cambios de arquitectura, cambios de testing o dudas entre documentos. |
+| Guardian SOLID y patrones | `explorer` | Revisar SRP, OCP, LSP, ISP, DIP, patrones documentados, dependencias entre capas y oportunidades de refactor. No modifica archivos. | Durante hitos de dominio/aplicacion, antes de introducir abstracciones nuevas, antes de cerrar hitos grandes o cuando aparezca deuda estructural. |
 | Arquitecto revisor | `explorer` | Revisar requisitos, detectar inconsistencias y riesgos. | Antes de cambios grandes o al cerrar hitos. |
 | Motor de simulacion | `worker` | Implementar `domain/predictors`, `simulation`, `stats`. | Cuando haya contratos definidos y tests esperados. |
 | Diseno UX academico | `explorer` | Revisar flujos, wireframes, jerarquia de informacion, modo examen/solucion, estados vacios, errores y claridad pedagogica. | Antes de pantallas nuevas, tablas complejas o cambios de interaccion. |
@@ -157,6 +158,8 @@ Usa agentes para dividir esta tarea:
 Reglas de uso:
 
 - Antes de cambios grandes o dudosos se puede lanzar `Guardian documental` para validar coherencia sin editar archivos.
+- El `Guardian SOLID y patrones` trabaja junto al `Guardian documental`: puede proponer refactors, pero si una propuesta toca alcance, arquitectura documentada o politica QA, debe marcarla para revision documental antes de implementarla.
+- El `Guardian SOLID y patrones` no bloquea por preferencias esteticas de codigo; prioriza riesgos estructurales, acoplamiento, violaciones SOLID, patrones mal aplicados y refactors que reduzcan complejidad real.
 - Cada `worker` debe recibir una zona de propiedad clara para evitar conflictos.
 - Ningun `worker` puede editar documentos de diseno o gobernanza.
 - Ningun agente debe revertir cambios de otros.
@@ -186,17 +189,32 @@ Eres un explorer de Codex. Revisa solo este aspecto: [pregunta concreta].
 No modifiques archivos. Devuelve hallazgos priorizados, riesgos y referencias a documentos o codigo.
 ```
 
+Prompt recomendado para Guardian SOLID y patrones:
+
+```text
+Eres el Guardian SOLID y patrones de Codex.
+No modifiques archivos.
+Revisa SRP, OCP, LSP, ISP, DIP, patrones documentados en docs/ARQUITECTURA.md,
+dependencias entre capas, duplicacion accidental y deuda tecnica estructural.
+Coordina tus hallazgos con el Guardian documental: si una recomendacion contradice
+docs/REQUISITOS.md, docs/ARQUITECTURA.md o docs/POLITICA_QA.md, marcala como
+decision documental y no como refactor directo.
+Devuelve hallazgos P1/P2/P3 con rutas, principio/patron afectado, recomendacion,
+seguridad del cambio y tests protectores.
+```
+
 ## 8. Primera division de trabajo recomendada
 
 1. Jefe: crear esqueleto Vite + TypeScript, capas y contratos base.
 2. Explorer Guardian documental: validar que el primer hito respeta requisitos, arquitectura y politica QA sin modificar archivos.
-3. Worker Motor: implementar contadores saturantes, outcomes, branch sequence, predictor de un nivel y tests.
-4. Worker Persistencia: definir esquemas Zod para sesion, predictor config y repositorios YAML.
-5. Worker Plantillas oficiales: convertir ejercicios 1, 2, 3, 4, 5 y 7 de `ref_docs/Problemas.pdf` a datos versionados.
-6. Explorer Diseno UX academico: revisar layout Material, densidad academica, accesibilidad basica y comportamiento esperado de editores/tabla antes de implementar pantalla.
-7. Worker UI: montar layout Material con editores, configurador y tabla vacia conectada a store.
-8. Worker QA unitario/integracion: completar tests faltantes del bloque si no quedaron incluidos por los workers de implementacion.
-9. Explorer QA revisor: revisar si las dependencias respetan la regla de capas y si las plantillas reproducen las soluciones oficiales.
+3. Explorer Guardian SOLID y patrones: revisar contratos base, patrones y dependencias sin modificar archivos.
+4. Worker Motor: implementar contadores saturantes, outcomes, branch sequence, predictor de un nivel y tests.
+5. Worker Persistencia: definir esquemas Zod para sesion, predictor config y repositorios YAML.
+6. Worker Plantillas oficiales: convertir ejercicios 1, 2, 3, 4, 5 y 7 de `ref_docs/Problemas.pdf` a datos versionados.
+7. Explorer Diseno UX academico: revisar layout Material, densidad academica, accesibilidad basica y comportamiento esperado de editores/tabla antes de implementar pantalla.
+8. Worker UI: montar layout Material con editores, configurador y tabla vacia conectada a store.
+9. Worker QA unitario/integracion: completar tests faltantes del bloque si no quedaron incluidos por los workers de implementacion.
+10. Explorer QA revisor: revisar si las dependencias respetan la regla de capas y si las plantillas reproducen las soluciones oficiales.
 
 ## 9. Dudas abiertas para confirmar con el usuario
 

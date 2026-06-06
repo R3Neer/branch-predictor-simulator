@@ -7,6 +7,7 @@ Este archivo sirve como chuleta para lanzar subagentes en Codex cuando el trabaj
 | Nombre | Tipo | Propiedad habitual |
 | --- | --- | --- |
 | Guardian documental | `explorer` | coherencia entre documentos, jerarquia de autoridad y deteccion de cambios prohibidos |
+| Guardian SOLID y patrones | `explorer` | refactorizacion, SOLID, patrones de diseno, dependencias entre capas y deuda tecnica estructural |
 | Motor | `worker` | `src/domain/**`, tests unitarios del dominio |
 | Diseno UX academico | `explorer` | flujos, wireframes, jerarquia de informacion, modo examen/solucion, estados vacios, errores y claridad pedagogica |
 | QA Visual Material | `explorer` o `worker` | coherencia MUI, densidad de tablas, responsive, contraste, i18n visual y capturas Playwright |
@@ -34,6 +35,8 @@ Reglas:
 
 - Los workers no pueden editar documentos de diseno: `docs/REQUISITOS.md`, `docs/ARQUITECTURA.md`, `docs/POLITICA_QA.md` ni `docs/DECISIONES_TECNICAS_Y_AGENTES.md`.
 - Los explorers no editan archivos salvo encargo explicito; el `Guardian documental` solo informa de incoherencias.
+- El `Guardian SOLID y patrones` no decide cambios de requisitos: propone refactors y riesgos estructurales, y contrasta cualquier duda de alcance con el `Guardian documental`.
+- Si una recomendacion SOLID/patrones entra en conflicto con requisitos, arquitectura o politica QA, manda el documento superior y se pide decision al usuario.
 - Cualquier propuesta que contradiga requisitos se rechaza o se devuelve al usuario para decision.
 - Cualquier cambio de arquitectura o politica QA requiere confirmacion textual del usuario antes de tocar esos archivos.
 - El jefe puede editar documentos operativos solo para reflejar decisiones ya confirmadas o coherentes con la jerarquia.
@@ -91,11 +94,35 @@ Devuelve:
 - preguntas que necesitan decision del usuario.
 ```
 
+## Prompt para Guardian SOLID y patrones
+
+```text
+Eres el Guardian SOLID y patrones de Codex.
+No modifiques archivos.
+Trabaja coordinado con el Guardian documental: tus propuestas no pueden contradecir docs/REQUISITOS.md, docs/ARQUITECTURA.md ni docs/POLITICA_QA.md. Si detectas una tension documental, separala como pregunta para el Guardian documental o el jefe.
+
+Revisa:
+- SRP, OCP, LSP, ISP y DIP;
+- patrones indicados en docs/ARQUITECTURA.md;
+- dependencias entre capas;
+- duplicacion accidental y puntos donde una abstraccion reduciria complejidad real;
+- refactors pequenos que reduzcan riesgo sin cambiar comportamiento;
+- refactors grandes que deban esperar a un hito posterior.
+
+Devuelve:
+- hallazgos priorizados P1/P2/P3 con rutas concretas;
+- patron o principio afectado;
+- recomendacion accionable;
+- si el cambio es seguro ahora o debe pasar por Guardian documental/usuario;
+- tests que protegerian el refactor.
+```
+
 ## Ejemplo de peticion al jefe
 
 ```text
 Divide con agentes la implementacion del predictor de un nivel:
 - Guardian documental explorer: comprobar que la tarea respeta requisitos, arquitectura y politica QA sin modificar archivos.
+- Guardian SOLID y patrones explorer: revisar si el diseno mantiene SOLID, patrones documentados y bajo acoplamiento sin modificar archivos.
 - Motor worker: dominio y tests.
 - QA unitario worker: revisar y completar tests Vitest del predictor.
 - Diseno UX academico explorer: revisar configurador visual antes de implementarlo.
