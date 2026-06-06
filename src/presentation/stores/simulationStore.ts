@@ -41,6 +41,7 @@ interface SimulationStoreState {
   readonly exportedSessionYaml?: string;
   readonly statistics?: StatisticsSet;
   readonly selectTemplate: (templateId: string) => void;
+  readonly selectVariant: (variantId: string) => void;
   readonly updateCSource: (source: string) => void;
   readonly updateSessionYamlInput: (source: string) => void;
   readonly importSessionYaml: () => void;
@@ -90,14 +91,15 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
   tableView: project([], "exam"),
   selectTemplate: (templateId) => {
     const template = officialTemplates.find((candidate) => candidate.id === templateId) ?? initialTemplate;
+    const variant = template.variants[0];
     set({
       selectedTemplateId: template.id,
-      selectedVariantId: template.variants[0].id,
+      selectedVariantId: variant.id,
       activeTitle: template.title,
       activeStatement: template.statement,
-      activeVariantTitle: template.variants[0].title,
+      activeVariantTitle: variant.title,
       activeBranchSequence: template.branchSequence,
-      activePredictorConfig: template.variants[0].predictorConfig,
+      activePredictorConfig: variant.predictorConfig,
       currentStep: 0,
       trace: [],
       statistics: undefined,
@@ -105,6 +107,26 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       exportedSessionYaml: undefined,
       sessionImportError: undefined,
       tableView: project([], get().mode)
+    });
+  },
+  selectVariant: (variantId) => {
+    const state = get();
+    const template =
+      officialTemplates.find((candidate) => candidate.id === state.selectedTemplateId) ?? initialTemplate;
+    const variant =
+      template.variants.find((candidate) => candidate.id === variantId) ?? template.variants[0];
+
+    set({
+      selectedVariantId: variant.id,
+      activeVariantTitle: variant.title,
+      activePredictorConfig: variant.predictorConfig,
+      currentStep: 0,
+      trace: [],
+      statistics: undefined,
+      exportedTable: undefined,
+      exportedSessionYaml: undefined,
+      sessionImportError: undefined,
+      tableView: project([], state.mode)
     });
   },
   updateCSource: (source) => {

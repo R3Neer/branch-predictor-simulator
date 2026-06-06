@@ -26,6 +26,7 @@ export function DashboardShell() {
   const {
     templates,
     selectedTemplateId,
+    selectedVariantId,
     activeTitle,
     activeStatement,
     activeVariantTitle,
@@ -42,6 +43,7 @@ export function DashboardShell() {
     exportedSessionYaml,
     statistics,
     selectTemplate,
+    selectVariant,
     updateCSource,
     updateSessionYamlInput,
     importSessionYaml,
@@ -53,6 +55,7 @@ export function DashboardShell() {
     exportTable,
     exportSessionYaml
   } = useSimulationStore();
+  const selectedTemplate = templates.find((template) => template.id === selectedTemplateId) ?? templates[0];
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
       <AppBar position="static" color="inherit" elevation={0}>
@@ -239,7 +242,22 @@ export function DashboardShell() {
               </Select>
             </FormControl>
             <TextField label="Sesion" size="small" value={activeTitle} InputProps={{ readOnly: true }} />
-            <TextField label="Variante" size="small" value={activeVariantTitle} InputProps={{ readOnly: true }} />
+            <FormControl fullWidth size="small">
+              <InputLabel id="variant-label">Variante</InputLabel>
+              <Select
+                labelId="variant-label"
+                label="Variante"
+                value={selectedVariantId}
+                onChange={(event) => selectVariant(event.target.value)}
+              >
+                {selectedTemplate.variants.map((variant) => (
+                  <MenuItem key={variant.id} value={variant.id}>
+                    {variant.title}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <TextField label="Variante activa" size="small" value={activeVariantTitle} InputProps={{ readOnly: true }} />
             <TextField
               label="Enunciado"
               size="small"
