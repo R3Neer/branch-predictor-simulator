@@ -89,4 +89,14 @@ branchSequence:
       correct: 1
     });
   });
+
+  it("rebuilds the simulated branch sequence when supported C changes", () => {
+    const store = useSimulationStore.getState();
+
+    store.updateCSource("int a = 10; int i = 0; for (; i < 3; i++) a += i;");
+    useSimulationStore.getState().runAll();
+
+    expect(useSimulationStore.getState().totalSteps).toBe(4);
+    expect(useSimulationStore.getState().trace).toHaveLength(4);
+  });
 });

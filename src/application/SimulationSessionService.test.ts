@@ -26,6 +26,20 @@ const loopedSequence: BranchSequence = {
 };
 
 describe("SimulationSessionService", () => {
+  it("translates supported C loops into a branch sequence", () => {
+    const result = service.translateCToBranchSequence(
+      "int a = 10; int i = 0; for (; i < 3; i++) a += i;"
+    );
+
+    expect(result.riscVSource).toContain("B1: exit loop");
+    expect(result.branchSequence.executions.map((execution) => execution.actual)).toEqual([
+      "NT",
+      "NT",
+      "NT",
+      "T"
+    ]);
+  });
+
   it("runs branch sequences through the canonical engine with expanded loops", () => {
     const trace = service.runTrace(loopedSequence, {
       type: "one-level",

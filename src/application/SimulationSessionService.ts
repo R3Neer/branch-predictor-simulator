@@ -6,6 +6,8 @@ import { SimulationEngine } from "../domain/simulation/SimulationEngine";
 import type { TraceStep } from "../domain/simulation/TraceStep";
 import { StatsCalculator, type StatisticsSet } from "../domain/stats/StatsCalculator";
 import { CTranslator, type CTranslationResult } from "../domain/source/CTranslator";
+import { RiscVBranchSequenceAdapter } from "../domain/source/RiscVBranchSequenceAdapter";
+import { RiscVParser } from "../domain/source/RiscVParser";
 import type { SourceBundle } from "../domain/source/SourceBundle";
 import { TableProjector, type DynamicTableView, type SessionMode } from "./projectors/TableProjector";
 
@@ -31,11 +33,17 @@ export interface PersistableStudySession {
   readonly userSolution?: unknown;
 }
 
+export interface CBranchSequenceTranslationResult extends CTranslationResult {
+  readonly branchSequence: BranchSequence;
+}
+
 export interface SimulationSessionServiceDependencies {
   readonly tableProjector?: TableProjector;
   readonly predictorFactory?: PredictorFactory;
   readonly sequenceExpander?: SequenceExpander;
   readonly cTranslator?: CTranslator;
+  readonly riscVParser?: RiscVParser;
+  readonly branchSequenceAdapter?: RiscVBranchSequenceAdapter;
   readonly answerChecker?: AnswerChecker;
   readonly tableExporters: Record<TableExportFormat, TableExporterPort>;
   readonly sessionYamlMapper: SessionYamlPort;
@@ -46,6 +54,8 @@ export class SimulationSessionService {
   private readonly predictorFactory: PredictorFactory;
   private readonly sequenceExpander: SequenceExpander;
   private readonly cTranslator: CTranslator;
+  private readonly riscVParser: RiscVParser;
+  private readonly branchSequenceAdapter: RiscVBranchSequenceAdapter;
   private readonly answerChecker: AnswerChecker;
   private readonly tableExporters: Record<TableExportFormat, TableExporterPort>;
   private readonly sessionYamlMapper: SessionYamlPort;
@@ -55,6 +65,8 @@ export class SimulationSessionService {
     this.predictorFactory = dependencies.predictorFactory ?? new PredictorFactory();
     this.sequenceExpander = dependencies.sequenceExpander ?? new SequenceExpander();
     this.cTranslator = dependencies.cTranslator ?? new CTranslator();
+    this.riscVParser = dependencies.riscVParser ?? new RiscVParser();
+    this.branchSequenceAdapter = dependencies.branchSequenceAdapter ?? new RiscVBranchSequenceAdapter();
     this.answerChecker = dependencies.answerChecker ?? new AnswerChecker();
     this.tableExporters = dependencies.tableExporters;
     this.sessionYamlMapper = dependencies.sessionYamlMapper;
@@ -75,6 +87,21 @@ export class SimulationSessionService {
         branchOutcomeHints: []
       };
     }
+  }
+
+  translateCToBranchSequence(source: string): CBranchSequenceTranslationResult {
+    const translation = this.translateSafely(source);
+    const program = this.riscVParser.parse(translation.riscVSource);
+    const reconstruction = this.branchSequenceAdapter.fromProgram(
+      program,
+      translation.branchOutcomeHints
+    );
+
+    return {
+      ...translation,
+      branchSequence: reconstruction.branchSequence,
+      diagnostics: [...translation.diagnostics, ...reconstruction.diagnostics]
+    };
   }
 
   runTrace(branchSequence: BranchSequence, predictorConfig: unknown, limit = this.expandedLength(branchSequence)) {

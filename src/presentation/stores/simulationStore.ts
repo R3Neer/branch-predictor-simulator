@@ -154,13 +154,20 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
     });
   },
   updateCSource: (source) => {
-    const translation = sessionService.translateSafely(source);
+    const translation = sessionService.translateCToBranchSequence(source);
     set({
       cSource: source,
       riscVSource: translation.riscVSource,
+      activeBranchSequence: translation.branchSequence,
       sourceSyncState: "synced",
+      totalSteps: sessionService.expandedLength(translation.branchSequence),
       translationDiagnostics: translation.diagnostics,
+      currentStep: 0,
+      trace: [],
+      statistics: undefined,
       correctionReport: undefined,
+      exportedTable: undefined,
+      tableView: sessionService.project([], get().mode),
       exportedSessionYaml: undefined
     });
   },

@@ -23,6 +23,7 @@ export { TableProjector } from "./projectors/TableProjector";
 export type { DynamicTableView, Language, SessionMode } from "./projectors/TableProjector";
 export { SimulationSessionService } from "./SimulationSessionService";
 export type {
+  CBranchSequenceTranslationResult,
   PersistableStudySession,
   SessionYamlPort,
   SimulationSessionServiceDependencies,
@@ -54,5 +55,10 @@ export { RiscVParser } from "../domain/source/RiscVParser";
 export type { Branch, Instruction, RiscVProgram } from "../domain/source/RiscVProgram";
 export { CTranslator } from "../domain/source/CTranslator";
 export type { BranchOutcomeHint, CTranslationDiagnostic, CTranslationResult } from "../domain/source/CTranslator";
+export { RiscVBranchSequenceAdapter } from "../domain/source/RiscVBranchSequenceAdapter";
+export type {
+  BranchSequenceReconstructionDiagnostic,
+  BranchSequenceReconstructionResult
+} from "../domain/source/RiscVBranchSequenceAdapter";
 export { SourceSyncPolicy } from "../domain/source/SourceBundle";
 export type { SourceBundle, SourceSyncState } from "../domain/source/SourceBundle";

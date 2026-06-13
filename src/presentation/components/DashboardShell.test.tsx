@@ -13,6 +13,8 @@ int a = 10;
 int i = 0;
 for (; i < N; i++) a -= i;
 printf(a);`);
+    useSimulationStore.getState().selectTemplate("exercise-1-one-level-2bit");
+    useSimulationStore.getState().reset();
     useSimulationStore.setState({
       mode: "exam",
       sourceSyncState: "synced",
