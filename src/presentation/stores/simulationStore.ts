@@ -1,12 +1,6 @@
 import { create } from "zustand";
 import {
-  AnswerChecker,
-  CTranslator,
-  PredictorFactory,
-  SequenceExpander,
-  SimulationEngine,
-  StatsCalculator,
-  TableProjector,
+  SimulationSessionService,
   type CTranslationDiagnostic,
   type BranchSequence,
   type CorrectionReport,
@@ -16,14 +10,13 @@ import {
   type SourceSyncState,
   type StatisticKey,
   type StatisticsSet,
+  type TableExportFormat,
   type TraceStep
 } from "../../application";
 import type { OfficialTemplate } from "../../infrastructure/templates/OfficialTemplate";
 import { officialTemplates } from "../../infrastructure/templates/officialTemplates";
 import { CsvTableExporter, MarkdownTableExporter } from "../../infrastructure/export/TableExporters";
 import { SessionYamlMapper } from "../../infrastructure/persistence/SessionYamlMapper";
-
-export type TableExportFormat = "csv" | "markdown";
 
 interface SimulationStoreState {
   readonly templates: readonly OfficialTemplate[];
@@ -68,16 +61,13 @@ interface SimulationStoreState {
   readonly exportSessionYaml: () => void;
 }
 
-const tableProjector = new TableProjector();
-const predictorFactory = new PredictorFactory();
-const sequenceExpander = new SequenceExpander();
-const cTranslator = new CTranslator();
-const answerChecker = new AnswerChecker();
-const sessionYamlMapper = new SessionYamlMapper();
-const tableExporters: Record<TableExportFormat, { export: (tableView: DynamicTableView) => string }> = {
-  csv: new CsvTableExporter(),
-  markdown: new MarkdownTableExporter()
-};
+const sessionService = new SimulationSessionService({
+  sessionYamlMapper: new SessionYamlMapper(),
+  tableExporters: {
+    csv: new CsvTableExporter(),
+    markdown: new MarkdownTableExporter()
+  }
+});
 const emptyStatAnswerInputs: Record<StatisticKey, string> = {
   hits: "",
   misses: "",
@@ -95,7 +85,7 @@ int a = 10;
 int i = 0;
 for (; i < N; i++) a -= i;
 printf(a);`;
-const initialTranslation = cTranslator.translate(initialCSource);
+const initialTranslation = sessionService.translateSafely(initialCSource);
 
 export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
   templates: officialTemplates,
@@ -111,13 +101,13 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
   cSource: initialCSource,
   riscVSource: initialTranslation.riscVSource,
   sourceSyncState: "synced",
-  totalSteps: expandedLength(initialTemplate.branchSequence),
+  totalSteps: sessionService.expandedLength(initialTemplate.branchSequence),
   sessionYamlInput: "",
   statAnswerInputs: emptyStatAnswerInputs,
   translationDiagnostics: initialTranslation.diagnostics,
   currentStep: 0,
   trace: [],
-  tableView: project([], "exam"),
+  tableView: sessionService.project([], "exam"),
   selectTemplate: (templateId) => {
     const template = officialTemplates.find((candidate) => candidate.id === templateId) ?? initialTemplate;
     const variant = template.variants[0];
@@ -130,7 +120,7 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       activeBranchSequence: template.branchSequence,
       activePredictorConfig: variant.predictorConfig,
       language: "es",
-      totalSteps: expandedLength(template.branchSequence),
+      totalSteps: sessionService.expandedLength(template.branchSequence),
       currentStep: 0,
       trace: [],
       statistics: undefined,
@@ -139,7 +129,7 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       exportedTable: undefined,
       exportedSessionYaml: undefined,
       sessionImportError: undefined,
-      tableView: project([], get().mode)
+      tableView: sessionService.project([], get().mode)
     });
   },
   selectVariant: (variantId) => {
@@ -160,11 +150,11 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       exportedTable: undefined,
       exportedSessionYaml: undefined,
       sessionImportError: undefined,
-      tableView: project([], state.mode)
+      tableView: sessionService.project([], state.mode)
     });
   },
   updateCSource: (source) => {
-    const translation = translateSafely(source);
+    const translation = sessionService.translateSafely(source);
     set({
       cSource: source,
       riscVSource: translation.riscVSource,
@@ -190,7 +180,7 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       correctionReport: undefined,
       exportedTable: undefined,
       exportedSessionYaml: undefined,
-      tableView: project([], get().mode)
+      tableView: sessionService.project([], get().mode)
     });
   },
   updateSessionYamlInput: (source) => {
@@ -207,7 +197,7 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
   },
   importSessionYaml: () => {
     try {
-      const session = sessionYamlMapper.fromYaml(get().sessionYamlInput);
+      const session = sessionService.importSessionYaml(get().sessionYamlInput);
       set({
         activeTitle: session.title,
         activeStatement: "Sesion importada desde YAML.",
@@ -219,7 +209,7 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
         cSource: session.source.cSource ?? "",
         riscVSource: session.source.riscVSource,
         sourceSyncState: session.source.syncState,
-        totalSteps: expandedLength(session.branchSequence),
+        totalSteps: sessionService.expandedLength(session.branchSequence),
         translationDiagnostics: [],
         currentStep: 0,
         trace: [],
@@ -229,7 +219,7 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
         exportedTable: undefined,
         exportedSessionYaml: undefined,
         sessionImportError: undefined,
-        tableView: project([], session.mode)
+        tableView: sessionService.project([], session.mode)
       });
     } catch (error) {
       set({
@@ -238,11 +228,15 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
     }
   },
   setMode: (mode) => {
-    set({ mode, tableView: project(get().trace, mode) });
+    set({ mode, tableView: sessionService.project(get().trace, mode) });
   },
   step: () => {
     const state = get();
-    const trace = runTrace(state.activeBranchSequence, state.activePredictorConfig, state.currentStep + 1);
+    const trace = sessionService.runTrace(
+      state.activeBranchSequence,
+      state.activePredictorConfig,
+      state.currentStep + 1
+    );
     set({
       currentStep: trace.length,
       trace,
@@ -250,12 +244,12 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       correctionReport: undefined,
       exportedTable: undefined,
       exportedSessionYaml: undefined,
-      tableView: project(trace, get().mode)
+      tableView: sessionService.project(trace, get().mode)
     });
   },
   runAll: () => {
     const state = get();
-    const trace = runTrace(state.activeBranchSequence, state.activePredictorConfig);
+    const trace = sessionService.runTrace(state.activeBranchSequence, state.activePredictorConfig);
     set({
       currentStep: trace.length,
       trace,
@@ -263,7 +257,7 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       correctionReport: undefined,
       exportedTable: undefined,
       exportedSessionYaml: undefined,
-      tableView: project(trace, get().mode)
+      tableView: sessionService.project(trace, get().mode)
     });
   },
   reset: () => {
@@ -274,32 +268,30 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       correctionReport: undefined,
       exportedTable: undefined,
       exportedSessionYaml: undefined,
-      tableView: project([], get().mode)
+      tableView: sessionService.project([], get().mode)
     });
   },
   calculateStats: () => {
     set({
-      statistics: calculateStatsForTrace(get().trace, get().activePredictorConfig)
+      statistics: sessionService.calculateStats(get().trace, get().activePredictorConfig)
     });
   },
   checkAnswers: () => {
-    const state = get();
-    const statAnswers = Object.entries(state.statAnswerInputs)
-      .filter(([, raw]) => raw.trim().length > 0)
-      .map(([key, raw]) => ({ key: key as StatisticKey, raw }));
-    const stats = calculateStatsForTrace(state.trace, state.activePredictorConfig);
-
     set({
-      correctionReport: answerChecker.compare({ tableAnswers: [], statAnswers }, state.trace, stats)
+      correctionReport: sessionService.checkStatAnswers(
+        get().statAnswerInputs,
+        get().trace,
+        get().activePredictorConfig
+      )
     });
   },
   exportTable: (format) => {
-    set({ exportedTable: tableExporters[format].export(get().tableView) });
+    set({ exportedTable: sessionService.exportTable(format, get().tableView) });
   },
   exportSessionYaml: () => {
     const state = get();
     set({
-      exportedSessionYaml: sessionYamlMapper.toYaml({
+      exportedSessionYaml: sessionService.exportSessionYaml({
         version: 1,
         title: state.activeTitle,
         language: state.language,
@@ -315,62 +307,3 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
     });
   }
 }));
-
-function runTrace(
-  branchSequence: BranchSequence,
-  predictorConfig: unknown,
-  limit = sequenceExpander.expand(branchSequence).length
-) {
-  const predictor = predictorFactory.create(predictorConfig);
-  if (!predictor) {
-    return [];
-  }
-  const expandedExecutions = sequenceExpander.expand(branchSequence);
-
-  const limitedSequence = {
-    executions: expandedExecutions.slice(0, limit),
-    loops: []
-  };
-  const engine = new SimulationEngine();
-  return engine.runToCompletion(
-    engine.initialise(limitedSequence, predictor as never, predictorConfig as never),
-    predictor as never
-  ).trace;
-}
-
-function project(trace: readonly TraceStep[], mode: SessionMode) {
-  return tableProjector.project(trace, { mode, language: "es", revealSolution: mode === "solution" });
-}
-
-function expandedLength(branchSequence: BranchSequence) {
-  return sequenceExpander.expand(branchSequence).length;
-}
-
-function calculateStatsForTrace(trace: readonly TraceStep[], predictorConfig: unknown) {
-  const predictor = predictorFactory.create(predictorConfig);
-  const memoryUsage =
-    predictor && "memoryUsage" in predictor
-      ? (predictor.memoryUsage as (config: unknown) => { bits: number; entries: number })(
-          predictorConfig
-        )
-      : undefined;
-
-  return new StatsCalculator().calculate(trace, memoryUsage);
-}
-
-function translateSafely(source: string) {
-  try {
-    return cTranslator.translate(source);
-  } catch (error) {
-    return {
-      riscVSource: "",
-      diagnostics: [
-        {
-          severity: "warning" as const,
-          message: error instanceof Error ? error.message : "C source could not be translated."
-        }
-      ],
-      branchOutcomeHints: []
-    };
-  }
-}
