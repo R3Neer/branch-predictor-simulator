@@ -85,6 +85,22 @@ printf(a);`);
     expect(screen.getByText(/respuestas correctas/)).toBeInTheDocument();
   });
 
+  it("runs and exports a manually edited branch sequence", () => {
+    render(<App />);
+
+    fireEvent.change(screen.getByLabelText("Secuencia manual"), {
+      target: { value: "B1 T index=0 # edited\nB1 NT index=0" }
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Todo" }));
+
+    expect(screen.getByText("Paso 2 / 2")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "YAML" }));
+    const yamlArea = screen.getByLabelText("Sesion YAML") as HTMLTextAreaElement;
+    expect(yamlArea.value).toContain("comment: edited");
+    expect(yamlArea.value).toContain("actual: NT");
+  });
+
   it("exports the current editable input as YAML without derived statistics", () => {
     render(<App />);
 

@@ -6,6 +6,7 @@ import { SimulationEngine } from "../domain/simulation/SimulationEngine";
 import type { TraceStep } from "../domain/simulation/TraceStep";
 import { StatsCalculator, type StatisticsSet } from "../domain/stats/StatsCalculator";
 import { CTranslator, type CTranslationResult } from "../domain/source/CTranslator";
+import { ManualBranchSequenceParser } from "../domain/source/ManualBranchSequenceParser";
 import { RiscVBranchSequenceAdapter } from "../domain/source/RiscVBranchSequenceAdapter";
 import { RiscVParser } from "../domain/source/RiscVParser";
 import type { SourceBundle } from "../domain/source/SourceBundle";
@@ -44,6 +45,7 @@ export interface SimulationSessionServiceDependencies {
   readonly cTranslator?: CTranslator;
   readonly riscVParser?: RiscVParser;
   readonly branchSequenceAdapter?: RiscVBranchSequenceAdapter;
+  readonly manualBranchSequenceParser?: ManualBranchSequenceParser;
   readonly answerChecker?: AnswerChecker;
   readonly tableExporters: Record<TableExportFormat, TableExporterPort>;
   readonly sessionYamlMapper: SessionYamlPort;
@@ -56,6 +58,7 @@ export class SimulationSessionService {
   private readonly cTranslator: CTranslator;
   private readonly riscVParser: RiscVParser;
   private readonly branchSequenceAdapter: RiscVBranchSequenceAdapter;
+  private readonly manualBranchSequenceParser: ManualBranchSequenceParser;
   private readonly answerChecker: AnswerChecker;
   private readonly tableExporters: Record<TableExportFormat, TableExporterPort>;
   private readonly sessionYamlMapper: SessionYamlPort;
@@ -67,6 +70,8 @@ export class SimulationSessionService {
     this.cTranslator = dependencies.cTranslator ?? new CTranslator();
     this.riscVParser = dependencies.riscVParser ?? new RiscVParser();
     this.branchSequenceAdapter = dependencies.branchSequenceAdapter ?? new RiscVBranchSequenceAdapter();
+    this.manualBranchSequenceParser =
+      dependencies.manualBranchSequenceParser ?? new ManualBranchSequenceParser();
     this.answerChecker = dependencies.answerChecker ?? new AnswerChecker();
     this.tableExporters = dependencies.tableExporters;
     this.sessionYamlMapper = dependencies.sessionYamlMapper;
@@ -102,6 +107,14 @@ export class SimulationSessionService {
       branchSequence: reconstruction.branchSequence,
       diagnostics: [...translation.diagnostics, ...reconstruction.diagnostics]
     };
+  }
+
+  parseManualBranchSequence(source: string): BranchSequence {
+    return this.manualBranchSequenceParser.parse(source);
+  }
+
+  formatManualBranchSequence(sequence: BranchSequence): string {
+    return this.manualBranchSequenceParser.format(sequence);
   }
 
   runTrace(branchSequence: BranchSequence, predictorConfig: unknown, limit = this.expandedLength(branchSequence)) {

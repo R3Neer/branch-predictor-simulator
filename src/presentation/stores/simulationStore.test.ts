@@ -99,4 +99,33 @@ branchSequence:
     expect(useSimulationStore.getState().totalSteps).toBe(4);
     expect(useSimulationStore.getState().trace).toHaveLength(4);
   });
+
+  it("runs the manually edited branch sequence", () => {
+    const store = useSimulationStore.getState();
+
+    store.updateManualSequenceSource(`B1 T index=0 # warmup
+B1 NT index=0
+loop 0..1 x2`);
+    useSimulationStore.getState().runAll();
+
+    expect(useSimulationStore.getState().manualSequenceError).toBeUndefined();
+    expect(useSimulationStore.getState().totalSteps).toBe(4);
+    expect(useSimulationStore.getState().trace).toHaveLength(4);
+    expect(useSimulationStore.getState().activeBranchSequence.executions[0]).toMatchObject({
+      branchId: "B1",
+      actual: "T",
+      manualIndex: 0,
+      comment: "warmup"
+    });
+  });
+
+  it("keeps invalid manual sequence text without replacing the active sequence", () => {
+    const store = useSimulationStore.getState();
+    const previousSequence = store.activeBranchSequence;
+
+    store.updateManualSequenceSource("B1 maybe index=0");
+
+    expect(useSimulationStore.getState().manualSequenceError).toContain("outcome must be T or NT");
+    expect(useSimulationStore.getState().activeBranchSequence).toBe(previousSequence);
+  });
 });

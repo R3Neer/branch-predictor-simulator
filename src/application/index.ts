@@ -55,6 +55,7 @@ export { RiscVParser } from "../domain/source/RiscVParser";
 export type { Branch, Instruction, RiscVProgram } from "../domain/source/RiscVProgram";
 export { CTranslator } from "../domain/source/CTranslator";
 export type { BranchOutcomeHint, CTranslationDiagnostic, CTranslationResult } from "../domain/source/CTranslator";
+export { ManualBranchSequenceParser } from "../domain/source/ManualBranchSequenceParser";
 export { RiscVBranchSequenceAdapter } from "../domain/source/RiscVBranchSequenceAdapter";
 export type {
   BranchSequenceReconstructionDiagnostic,

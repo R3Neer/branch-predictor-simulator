@@ -32,6 +32,8 @@ interface SimulationStoreState {
   readonly cSource: string;
   readonly riscVSource: string;
   readonly sourceSyncState: SourceSyncState;
+  readonly manualSequenceSource: string;
+  readonly manualSequenceError?: string;
   readonly totalSteps: number;
   readonly sessionYamlInput: string;
   readonly sessionImportError?: string;
@@ -48,6 +50,7 @@ interface SimulationStoreState {
   readonly selectVariant: (variantId: string) => void;
   readonly updateCSource: (source: string) => void;
   readonly updateRiscVSource: (source: string) => void;
+  readonly updateManualSequenceSource: (source: string) => void;
   readonly updateSessionYamlInput: (source: string) => void;
   readonly updateStatAnswer: (key: StatisticKey, value: string) => void;
   readonly importSessionYaml: () => void;
@@ -101,6 +104,7 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
   cSource: initialCSource,
   riscVSource: initialTranslation.riscVSource,
   sourceSyncState: "synced",
+  manualSequenceSource: sessionService.formatManualBranchSequence(initialTemplate.branchSequence),
   totalSteps: sessionService.expandedLength(initialTemplate.branchSequence),
   sessionYamlInput: "",
   statAnswerInputs: emptyStatAnswerInputs,
@@ -120,6 +124,8 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       activeBranchSequence: template.branchSequence,
       activePredictorConfig: variant.predictorConfig,
       language: "es",
+      manualSequenceSource: sessionService.formatManualBranchSequence(template.branchSequence),
+      manualSequenceError: undefined,
       totalSteps: sessionService.expandedLength(template.branchSequence),
       currentStep: 0,
       trace: [],
@@ -160,6 +166,8 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       riscVSource: translation.riscVSource,
       activeBranchSequence: translation.branchSequence,
       sourceSyncState: "synced",
+      manualSequenceSource: sessionService.formatManualBranchSequence(translation.branchSequence),
+      manualSequenceError: undefined,
       totalSteps: sessionService.expandedLength(translation.branchSequence),
       translationDiagnostics: translation.diagnostics,
       currentStep: 0,
@@ -190,6 +198,30 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       tableView: sessionService.project([], get().mode)
     });
   },
+  updateManualSequenceSource: (source) => {
+    try {
+      const branchSequence = sessionService.parseManualBranchSequence(source);
+      set({
+        manualSequenceSource: source,
+        manualSequenceError: undefined,
+        activeBranchSequence: branchSequence,
+        totalSteps: sessionService.expandedLength(branchSequence),
+        currentStep: 0,
+        trace: [],
+        statistics: undefined,
+        correctionReport: undefined,
+        exportedTable: undefined,
+        exportedSessionYaml: undefined,
+        tableView: sessionService.project([], get().mode)
+      });
+    } catch (error) {
+      set({
+        manualSequenceSource: source,
+        manualSequenceError:
+          error instanceof Error ? error.message : "No se pudo interpretar la secuencia manual."
+      });
+    }
+  },
   updateSessionYamlInput: (source) => {
     set({ sessionYamlInput: source, sessionImportError: undefined });
   },
@@ -216,6 +248,8 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
         cSource: session.source.cSource ?? "",
         riscVSource: session.source.riscVSource,
         sourceSyncState: session.source.syncState,
+        manualSequenceSource: sessionService.formatManualBranchSequence(session.branchSequence),
+        manualSequenceError: undefined,
         totalSteps: sessionService.expandedLength(session.branchSequence),
         translationDiagnostics: [],
         currentStep: 0,

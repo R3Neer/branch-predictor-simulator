@@ -35,6 +35,8 @@ export function DashboardShell() {
     cSource,
     riscVSource,
     sourceSyncState,
+    manualSequenceSource,
+    manualSequenceError,
     totalSteps,
     sessionYamlInput,
     sessionImportError,
@@ -50,6 +52,7 @@ export function DashboardShell() {
     selectVariant,
     updateCSource,
     updateRiscVSource,
+    updateManualSequenceSource,
     updateSessionYamlInput,
     updateStatAnswer,
     importSessionYaml,
@@ -94,7 +97,7 @@ export function DashboardShell() {
           <Box
             sx={{
               display: "grid",
-              gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+              gridTemplateColumns: { xs: "1fr", md: "1fr 1fr", xl: "1fr 1fr 1fr" },
               gap: 2
             }}
           >
@@ -105,7 +108,13 @@ export function DashboardShell() {
               onChange={updateCSource}
             />
             <EditorPanel title="RISC-V" value={riscVSource} onChange={updateRiscVSource} />
+            <EditorPanel
+              title="Secuencia manual"
+              value={manualSequenceSource}
+              onChange={updateManualSequenceSource}
+            />
           </Box>
+          {manualSequenceError ? <Alert severity="warning">{manualSequenceError}</Alert> : undefined}
           {translationDiagnostics.length > 0 ? (
             <Stack spacing={1}>
               {translationDiagnostics.map((diagnostic) => (
@@ -357,6 +366,7 @@ function EditorPanel({
         minRows={8}
         value={value}
         onChange={(event) => onChange?.(event.target.value)}
+        inputProps={{ "aria-label": title }}
         InputProps={{
           readOnly,
           sx: {
