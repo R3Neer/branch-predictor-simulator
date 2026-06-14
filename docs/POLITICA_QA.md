@@ -4,6 +4,38 @@ Este documento forma parte del diseno del simulador. Su objetivo es fijar como s
 
 La politica aplica a todo codigo de v1 descrito en `docs/REQUISITOS.md`, `docs/ARQUITECTURA.md` y `docs/DECISIONES_TECNICAS_Y_AGENTES.md`.
 
+## Estado actual de QA
+
+Fecha de sincronización documental: 2026-06-14.
+
+La suite actual cubre dominio, aplicación, infraestructura y algunos componentes/store de presentación con Vitest y Testing Library.
+
+Cobertura ya presente:
+
+- Contadores, predictores principales, registros de historia e indexadores.
+- Motor de simulación, expansión de secuencias y cálculo de estadísticas.
+- Parsers/traductores C/RISC-V y secuencia manual.
+- Corrección de estadísticas y respuestas de tabla.
+- Proyectores de tabla/cálculo.
+- YAML, esquemas Zod de configuración y plantillas.
+- Exportadores CSV/Markdown.
+- Store Zustand y `DashboardShell`.
+
+Gates usados actualmente:
+
+```powershell
+npm.cmd test
+npm.cmd run lint
+npm.cmd run build
+```
+
+Pendiente de QA para v1:
+
+- Playwright para flujos completos: cargar plantilla, ejecutar, comprobar, importar/exportar.
+- Revisión visual/responsive/accesibilidad.
+- Tests de i18n cuando los catálogos ES/EN estén completos.
+- Validación oficial de plantillas 2, 3, 4, 5 y 7 contra `ref_docs/Problemas.pdf`.
+
 ## 0. Autoridad y cambios del documento
 
 Jerarquia documental:

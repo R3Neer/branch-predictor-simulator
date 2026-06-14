@@ -40,6 +40,17 @@ La decision favorece:
 
 La politica detallada de pruebas y QA queda fijada en `docs/POLITICA_QA.md`. Ese documento es vinculante para implementar clases, casos de uso, adaptadores, componentes y flujos.
 
+## 2.2 Estado actual de herramientas
+
+Fecha de sincronización documental: 2026-06-14.
+
+Instalado y en uso:
+
+- TypeScript, Vite, React, MUI, Zustand, Zod, `yaml`, Vitest, Testing Library, ESLint y Prettier.
+- `@monaco-editor/react`, `@tanstack/react-table`, `i18next` y `react-i18next` están instalados para los hitos de UI/i18n, aunque la pantalla actual aún usa editores `TextField`, tabla HTML básica y textos mayoritariamente estáticos.
+
+No hay backend ni empaquetado Electron/Tauri. La v1 sigue siendo una web local con Vite.
+
 ## 2.1 Autoridad documental
 
 La implementacion y los agentes obedecen esta jerarquia:
@@ -70,26 +81,26 @@ Reglas de gobierno:
 | Rust/WASM | Interesante para rendimiento, innecesario para las trazas educativas de v1. |
 | Electron | No hace falta empaquetar escritorio en v1; una web local basta. |
 
-## 4. Estructura propuesta del proyecto
+## 4. Estructura actual del proyecto
 
 ```text
 .
 +-- src/
 |   +-- domain/
+|   |   +-- correction/
+|   |   +-- indexing/
 |   |   +-- predictors/
 |   |   +-- simulation/
 |   |   +-- stats/
-|   |   +-- correction/
 |   |   +-- source/
 |   +-- application/
-|   |   +-- use-cases/
-|   |   +-- ports/
 |   |   +-- projectors/
+|   |   +-- SimulationSessionService.ts
 |   +-- infrastructure/
 |   |   +-- persistence/
 |   |   +-- templates/
 |   |   +-- export/
-|   |   +-- i18n/
+|   |   +-- predictors/
 |   +-- presentation/
 |   |   +-- components/
 |   |   +-- screens/
@@ -102,6 +113,8 @@ Reglas de gobierno:
 +-- .codex/
 +-- package.json
 ```
+
+El diseño sigue admitiendo `use-cases`, `ports` e `infrastructure/i18n` como carpetas futuras si el crecimiento lo justifica. Por ahora, la orquestación principal vive en `SimulationSessionService` y los puertos explícitos son mínimos.
 
 Regla de dependencia:
 

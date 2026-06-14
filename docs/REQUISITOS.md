@@ -593,3 +593,33 @@ La traza debe contener suficiente información para:
 ## 19. Diseño y arquitectura
 
 Los diagramas de casos de uso, el modelo de dominio y la arquitectura inicial se mantienen en [ARQUITECTURA.md](ARQUITECTURA.md).
+
+## 20. Estado de implementación
+
+Fecha de sincronización documental: 2026-06-14.
+
+Este apartado no cambia el alcance de v1; solo refleja el estado actual de la codebase frente a los requisitos anteriores.
+
+Implementado:
+
+- Predictores de un nivel, multinivel `(n,m)`, correlacionado global, `gshare`, `gselect` y correlacionado local.
+- Motor de simulación canónico, expansión de bucles, ejecución parcial/completa y estadísticas desde traza.
+- Indexado por LSB, índice manual, XOR y concatenación.
+- Parser RISC-V inicial para saltos condicionales, etiquetas, direcciones hexadecimales y comentarios.
+- Traductor C didáctico orientado a generar RISC-V suficiente para ejercicios de bucles y saltos; no es un compilador C general.
+- Secuencia manual editable en texto con saltos `B1..Bn`, resultados `T/NT`, dirección o índice opcional, comentarios y rangos repetidos.
+- YAML de sesión con validación Zod y exclusión de datos derivados.
+- Exportación de tabla a CSV y Markdown desde proyecciones, no desde el DOM.
+- Corrección de respuestas de estadísticas y respuestas de tabla contra la traza canónica.
+- Plantillas de ejercicios 1, 2, 3, 4, 5 y 7 en datos versionados; el ejercicio 1 está verificado y el resto queda como borrador hasta validación contra el PDF.
+- UI local funcional con MUI y Zustand para plantillas, variantes, editores, tabla, estadísticas, corrección e importación/exportación.
+
+Pendiente o incompleto:
+
+- Configurador visual completo de predictores.
+- Edición visual de bucles; hoy existe representación textual y expansión de rangos.
+- Resaltado fino de instrucción RISC-V activa.
+- Retroceso paso a paso como acción explícita de UI.
+- i18n ES/EN completo en todos los textos visibles.
+- QA e2e Playwright, revisión visual, responsive y accesibilidad básica.
+- Verificación oficial de plantillas 2, 3, 4, 5 y 7.

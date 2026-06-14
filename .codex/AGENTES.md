@@ -2,6 +2,21 @@
 
 Este archivo sirve como chuleta para lanzar subagentes en Codex cuando el trabajo se pueda dividir sin pisar archivos.
 
+## Estado operativo actual
+
+Fecha de sincronización documental: 2026-06-14.
+
+El repositorio ya contiene motor, predictores v1, parsers, YAML, exportadores, plantillas, store y UI básica. Los agentes deben tratar la codebase como producto en marcha, no como scaffold inicial.
+
+Prioridades actuales para agentes:
+
+- `Plantillas oficiales`: verificar ejercicios 2, 3, 4, 5 y 7 contra `ref_docs/Problemas.pdf`.
+- `UI Material`: completar configurador visual, tabla funcional e integración con Monaco/TanStack cuando aporte valor.
+- `i18n`: extraer textos visibles y completar ES/EN.
+- `QA e2e`: crear Playwright para cargar plantilla, simular, comprobar y exportar.
+- `Guardian SOLID y patrones`: vigilar crecimiento de `SimulationSessionService` y proponer extracciones cuando reduzcan complejidad real.
+- `Guardian documental`: confirmar que nuevas decisiones no contradicen requisitos ni arquitectura.
+
 ## Roles
 
 | Nombre | Tipo | Propiedad habitual |

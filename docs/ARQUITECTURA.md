@@ -9,6 +9,36 @@ La arquitectura busca cuatro objetivos:
 - Facilitar la extensión hacia Tournament, TAGE, pipeline, ROB y pila de retorno.
 - Respetar SOLID, especialmente separación de responsabilidades, extensión sin modificación y dependencia de abstracciones.
 
+## Estado actual de la arquitectura implementada
+
+Fecha de sincronización documental: 2026-06-14.
+
+La codebase ya sigue la división principal prevista:
+
+- `src/domain`: predictores, indexadores, simulación, estadísticas, corrección y parsers/traductores de fuentes.
+- `src/application`: `SimulationSessionService`, puertos mínimos de exportación/YAML y proyectores de tabla/cálculos.
+- `src/infrastructure`: exportadores CSV/Markdown, mapper YAML, esquemas Zod de configuración y plantillas oficiales.
+- `src/presentation`: UI React/MUI, store Zustand, pantalla principal y tema.
+
+Contratos ya materializados:
+
+- `BranchPredictor` y `PredictorFactory` para seleccionar implementaciones por configuración.
+- `SimulationEngine`, `SequenceExpander` y `TraceStep` como fuente canónica de ejecución.
+- `StatsCalculator` calculando desde traza.
+- `TableProjector` y `CalculationViewBuilder` generando vistas derivadas.
+- `AnswerChecker`, `StatAnswerParser` y `TableAnswerParser` para corrección.
+- `SessionYamlMapper` para persistir solo input regenerable.
+- `TemplateValidator` y esquemas de plantillas para datos oficiales.
+
+Desviaciones conscientes respecto al diseño ideal:
+
+- La capa de aplicación está concentrada actualmente en `SimulationSessionService` en vez de muchos casos de uso pequeños. Es aceptable para esta fase, pero conviene extraer casos de uso si el servicio sigue creciendo.
+- La UI usa `TextField` para editores y tabla HTML básica; Monaco y TanStack Table están instalados y se reservan para el refinamiento funcional de v1.
+- El modo examen/solución existe como estado y afecta a proyecciones, pero aún falta endurecer todos los casos visuales donde pueda filtrarse información.
+- Las plantillas no están todas verificadas contra soluciones oficiales; `verificationStatus` distingue datos verificados de borradores.
+
+La tabla de la sección 24 describe cobertura arquitectónica, no implementación completada al 100%.
+
 ## 19. Diagramas de casos de uso
 
 Mermaid no ofrece un diagrama UML de casos de uso nativo tan completo como PlantUML. Por tanto, los siguientes diagramas usan `flowchart` con convenciones UML:
