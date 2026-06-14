@@ -2,6 +2,10 @@ import { parse, stringify } from "yaml";
 import { z } from "zod";
 import type { BranchSequence } from "../../domain/simulation/BranchSequence";
 import { SourceSyncPolicy, type SourceBundle } from "../../domain/source/SourceBundle";
+import {
+  predictorConfigSchema,
+  type SessionYamlPredictorConfig
+} from "../predictors/PredictorConfigSchema";
 
 const outcomeSchema = z.union([z.literal("T"), z.literal("NT")]);
 const branchExecutionSchema = z.object({
@@ -22,7 +26,7 @@ const sessionYamlSchema = z.object({
   title: z.string(),
   language: z.union([z.literal("es"), z.literal("en")]),
   mode: z.union([z.literal("exam"), z.literal("solution")]),
-  predictorConfig: z.any(),
+  predictorConfig: predictorConfigSchema,
   source: z.object({
     cSource: z.string().optional(),
     riscVSource: z.string(),
@@ -42,7 +46,7 @@ export interface StudySessionDraft {
   readonly title: string;
   readonly language: "es" | "en";
   readonly mode: "exam" | "solution";
-  readonly predictorConfig: unknown;
+  readonly predictorConfig: SessionYamlPredictorConfig;
   readonly source: SourceBundle;
   readonly branchSequence: BranchSequence;
   readonly userSolution?: unknown;

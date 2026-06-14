@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { SessionYamlMapper, type StudySessionDraft } from "./SessionYamlMapper";
+import { predictorConfigSchema } from "../predictors/PredictorConfigSchema";
+import { officialTemplates } from "../templates/officialTemplates";
 
 const session: StudySessionDraft = {
   version: 1,
@@ -44,5 +46,44 @@ describe("SessionYamlMapper", () => {
     expect(restored.source.cSource).toBe("while (i < 10) {}");
     expect(restored.branchSequence.loops[0].repetitions).toBe(10);
     expect(restored.userSolution).toEqual(session.userSolution);
+  });
+
+  it("accepts every official template predictor config", () => {
+    const mapper = new SessionYamlMapper();
+
+    for (const template of officialTemplates) {
+      for (const variant of template.variants) {
+        expect(() =>
+          mapper.toDto({
+            ...session,
+            title: `${template.id}:${variant.id}`,
+            predictorConfig: predictorConfigSchema.parse(variant.predictorConfig),
+            branchSequence: template.branchSequence
+          })
+        ).not.toThrow();
+      }
+    }
+  });
+
+  it("rejects incomplete predictor configs on import", () => {
+    const mapper = new SessionYamlMapper();
+    const yaml = mapper.toYaml(session).replace("counterBits: 2\n", "");
+
+    expect(() => mapper.fromYaml(yaml)).toThrow();
+  });
+
+  it("rejects predictor configs whose index policy does not match the table size", () => {
+    const mapper = new SessionYamlMapper();
+
+    expect(() =>
+      mapper.toDto({
+        ...session,
+        predictorConfig: {
+          ...session.predictorConfig,
+          entries: 2,
+          indexPolicy: { type: "manual", entries: 1 }
+        }
+      } as StudySessionDraft)
+    ).toThrow();
   });
 });

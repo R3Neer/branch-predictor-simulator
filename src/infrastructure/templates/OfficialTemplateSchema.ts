@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { predictorConfigSchema } from "../predictors/PredictorConfigSchema";
 
 const outcomeSchema = z.union([z.literal("T"), z.literal("NT")]);
 
@@ -33,7 +34,7 @@ export const officialTemplateSchema = z.object({
     z.object({
       id: z.string().min(1),
       title: z.string().min(1),
-      predictorConfig: z.any(),
+      predictorConfig: predictorConfigSchema,
       initialState: z.string().min(1),
       officialSolution: z.object({
         summary: z.string().min(1),
