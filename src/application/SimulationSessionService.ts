@@ -1,4 +1,5 @@
 import { AnswerChecker, type CorrectionReport, type StatisticKey } from "../domain/correction/AnswerChecker";
+import { TableAnswerParser } from "../domain/correction/TableAnswerParser";
 import { PredictorFactory } from "../domain/predictors/PredictorFactory";
 import type { BranchSequence } from "../domain/simulation/BranchSequence";
 import { SequenceExpander } from "../domain/simulation/SequenceExpander";
@@ -46,6 +47,7 @@ export interface SimulationSessionServiceDependencies {
   readonly riscVParser?: RiscVParser;
   readonly branchSequenceAdapter?: RiscVBranchSequenceAdapter;
   readonly manualBranchSequenceParser?: ManualBranchSequenceParser;
+  readonly tableAnswerParser?: TableAnswerParser;
   readonly answerChecker?: AnswerChecker;
   readonly tableExporters: Record<TableExportFormat, TableExporterPort>;
   readonly sessionYamlMapper: SessionYamlPort;
@@ -59,6 +61,7 @@ export class SimulationSessionService {
   private readonly riscVParser: RiscVParser;
   private readonly branchSequenceAdapter: RiscVBranchSequenceAdapter;
   private readonly manualBranchSequenceParser: ManualBranchSequenceParser;
+  private readonly tableAnswerParser: TableAnswerParser;
   private readonly answerChecker: AnswerChecker;
   private readonly tableExporters: Record<TableExportFormat, TableExporterPort>;
   private readonly sessionYamlMapper: SessionYamlPort;
@@ -72,6 +75,7 @@ export class SimulationSessionService {
     this.branchSequenceAdapter = dependencies.branchSequenceAdapter ?? new RiscVBranchSequenceAdapter();
     this.manualBranchSequenceParser =
       dependencies.manualBranchSequenceParser ?? new ManualBranchSequenceParser();
+    this.tableAnswerParser = dependencies.tableAnswerParser ?? new TableAnswerParser();
     this.answerChecker = dependencies.answerChecker ?? new AnswerChecker();
     this.tableExporters = dependencies.tableExporters;
     this.sessionYamlMapper = dependencies.sessionYamlMapper;
@@ -170,6 +174,24 @@ export class SimulationSessionService {
 
     return this.answerChecker.compare(
       { tableAnswers: [], statAnswers },
+      trace,
+      this.calculateStats(trace, predictorConfig)
+    );
+  }
+
+  checkAnswers(
+    tableAnswerSource: string,
+    statInputs: Record<StatisticKey, string>,
+    trace: readonly TraceStep[],
+    predictorConfig: unknown
+  ): CorrectionReport {
+    const tableAnswers = this.tableAnswerParser.parse(tableAnswerSource);
+    const statAnswers = Object.entries(statInputs)
+      .filter(([, raw]) => raw.trim().length > 0)
+      .map(([key, raw]) => ({ key: key as StatisticKey, raw }));
+
+    return this.answerChecker.compare(
+      { tableAnswers, statAnswers },
       trace,
       this.calculateStats(trace, predictorConfig)
     );

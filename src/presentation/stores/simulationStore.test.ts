@@ -7,7 +7,9 @@ describe("simulationStore", () => {
     useSimulationStore.getState().reset();
     useSimulationStore.setState({
       sessionYamlInput: "",
-      sessionImportError: undefined
+      sessionImportError: undefined,
+      tableAnswerSource: "",
+      tableAnswerError: undefined
     });
   });
 
@@ -87,6 +89,20 @@ branchSequence:
     expect(useSimulationStore.getState().correctionReport?.summary).toEqual({
       total: 1,
       correct: 1
+    });
+  });
+
+  it("checks table answers against the canonical trace", () => {
+    const store = useSimulationStore.getState();
+
+    store.runAll();
+    useSimulationStore.getState().updateTableAnswerSource("1 pred=T hit=miss");
+    useSimulationStore.getState().checkAnswers();
+
+    expect(useSimulationStore.getState().tableAnswerError).toBeUndefined();
+    expect(useSimulationStore.getState().correctionReport?.summary).toEqual({
+      total: 2,
+      correct: 2
     });
   });
 

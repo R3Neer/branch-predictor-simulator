@@ -17,6 +17,7 @@ export type {
 } from "../domain/correction/AnswerChecker";
 export { StatAnswerParser } from "../domain/correction/StatAnswerParser";
 export type { NormalizedStatAnswer } from "../domain/correction/StatAnswerParser";
+export { TableAnswerParser } from "../domain/correction/TableAnswerParser";
 export { CalculationViewBuilder } from "./projectors/CalculationViewBuilder";
 export type { CalculationView } from "./projectors/CalculationViewBuilder";
 export { TableProjector } from "./projectors/TableProjector";

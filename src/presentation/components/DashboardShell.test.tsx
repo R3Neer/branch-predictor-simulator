@@ -22,6 +22,8 @@ printf(a);`);
       exportedSessionYaml: undefined,
       sessionYamlInput: "",
       sessionImportError: undefined,
+      tableAnswerSource: "",
+      tableAnswerError: undefined,
       correctionReport: undefined
     });
   });
@@ -83,6 +85,18 @@ printf(a);`);
     fireEvent.click(screen.getByRole("button", { name: "Comprobar" }));
 
     expect(screen.getByText(/respuestas correctas/)).toBeInTheDocument();
+  });
+
+  it("checks table answers from user input", () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Paso" }));
+    fireEvent.change(screen.getByLabelText("Respuestas tabla"), {
+      target: { value: "1 pred=T hit=miss" }
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Comprobar" }));
+
+    expect(screen.getByText("2 / 2 respuestas correctas")).toBeInTheDocument();
   });
 
   it("runs and exports a manually edited branch sequence", () => {

@@ -38,6 +38,8 @@ interface SimulationStoreState {
   readonly sessionYamlInput: string;
   readonly sessionImportError?: string;
   readonly statAnswerInputs: Record<StatisticKey, string>;
+  readonly tableAnswerSource: string;
+  readonly tableAnswerError?: string;
   readonly correctionReport?: CorrectionReport;
   readonly translationDiagnostics: readonly CTranslationDiagnostic[];
   readonly currentStep: number;
@@ -53,6 +55,7 @@ interface SimulationStoreState {
   readonly updateManualSequenceSource: (source: string) => void;
   readonly updateSessionYamlInput: (source: string) => void;
   readonly updateStatAnswer: (key: StatisticKey, value: string) => void;
+  readonly updateTableAnswerSource: (source: string) => void;
   readonly importSessionYaml: () => void;
   readonly setMode: (mode: SessionMode) => void;
   readonly step: () => void;
@@ -108,6 +111,7 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
   totalSteps: sessionService.expandedLength(initialTemplate.branchSequence),
   sessionYamlInput: "",
   statAnswerInputs: emptyStatAnswerInputs,
+  tableAnswerSource: "",
   translationDiagnostics: initialTranslation.diagnostics,
   currentStep: 0,
   trace: [],
@@ -132,6 +136,8 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       statistics: undefined,
       correctionReport: undefined,
       statAnswerInputs: emptyStatAnswerInputs,
+      tableAnswerSource: "",
+      tableAnswerError: undefined,
       exportedTable: undefined,
       exportedSessionYaml: undefined,
       sessionImportError: undefined,
@@ -153,6 +159,7 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       trace: [],
       statistics: undefined,
       correctionReport: undefined,
+      tableAnswerError: undefined,
       exportedTable: undefined,
       exportedSessionYaml: undefined,
       sessionImportError: undefined,
@@ -174,6 +181,7 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       trace: [],
       statistics: undefined,
       correctionReport: undefined,
+      tableAnswerError: undefined,
       exportedTable: undefined,
       tableView: sessionService.project([], get().mode),
       exportedSessionYaml: undefined
@@ -193,6 +201,7 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       trace: [],
       statistics: undefined,
       correctionReport: undefined,
+      tableAnswerError: undefined,
       exportedTable: undefined,
       exportedSessionYaml: undefined,
       tableView: sessionService.project([], get().mode)
@@ -231,8 +240,12 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
         ...get().statAnswerInputs,
         [key]: value
       },
+      tableAnswerError: undefined,
       correctionReport: undefined
     });
+  },
+  updateTableAnswerSource: (source) => {
+    set({ tableAnswerSource: source, tableAnswerError: undefined, correctionReport: undefined });
   },
   importSessionYaml: () => {
     try {
@@ -257,6 +270,8 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
         statistics: undefined,
         correctionReport: undefined,
         statAnswerInputs: emptyStatAnswerInputs,
+        tableAnswerSource: "",
+        tableAnswerError: undefined,
         exportedTable: undefined,
         exportedSessionYaml: undefined,
         sessionImportError: undefined,
@@ -318,13 +333,22 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
     });
   },
   checkAnswers: () => {
-    set({
-      correctionReport: sessionService.checkStatAnswers(
-        get().statAnswerInputs,
-        get().trace,
-        get().activePredictorConfig
-      )
-    });
+    try {
+      set({
+        correctionReport: sessionService.checkAnswers(
+          get().tableAnswerSource,
+          get().statAnswerInputs,
+          get().trace,
+          get().activePredictorConfig
+        ),
+        tableAnswerError: undefined
+      });
+    } catch (error) {
+      set({
+        tableAnswerError:
+          error instanceof Error ? error.message : "No se pudieron comprobar las respuestas."
+      });
+    }
   },
   exportTable: (format) => {
     set({ exportedTable: sessionService.exportTable(format, get().tableView) });

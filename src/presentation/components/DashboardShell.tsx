@@ -41,6 +41,8 @@ export function DashboardShell() {
     sessionYamlInput,
     sessionImportError,
     statAnswerInputs,
+    tableAnswerSource,
+    tableAnswerError,
     correctionReport,
     translationDiagnostics,
     currentStep,
@@ -55,6 +57,7 @@ export function DashboardShell() {
     updateManualSequenceSource,
     updateSessionYamlInput,
     updateStatAnswer,
+    updateTableAnswerSource,
     importSessionYaml,
     setMode,
     step,
@@ -292,6 +295,17 @@ export function DashboardShell() {
               Estadisticas
             </Typography>
             <TextField
+              label="Respuestas tabla"
+              size="small"
+              multiline
+              minRows={3}
+              value={tableAnswerSource}
+              onChange={(event) => updateTableAnswerSource(event.target.value)}
+              InputProps={{
+                sx: { fontFamily: '"Roboto Mono", Consolas, monospace', fontSize: "0.8125rem" }
+              }}
+            />
+            <TextField
               label="Respuesta aciertos"
               size="small"
               value={statAnswerInputs.hits}
@@ -312,6 +326,7 @@ export function DashboardShell() {
             <Button startIcon={<FactCheckIcon />} variant="outlined" onClick={checkAnswers}>
               Comprobar
             </Button>
+            {tableAnswerError ? <Alert severity="warning">{tableAnswerError}</Alert> : undefined}
             {correctionReport ? (
               <Alert
                 severity={
