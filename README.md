@@ -23,7 +23,9 @@ The living project documentation is:
 
 ## Current Status
 
-V1 local release candidate.
+V1 release-ready candidate.
+
+The local release checklist has passed, GitHub Actions CI is configured, and GitHub Pages is connected to the release workflow. The official GitHub Release has not been published yet by choice.
 
 Implemented:
 
@@ -49,8 +51,8 @@ Implemented:
 
 Remaining release work:
 
-- Configure GitHub Pages source to **GitHub Actions** in repository settings before the first hosted deployment.
-- Publish a GitHub Release and confirm the `Release And Deploy Pages` workflow deploys the app successfully.
+- Publish the first GitHub Release when ready.
+- Confirm the `Release And Deploy Pages` workflow deploys the app successfully.
 
 ## Stack
 
@@ -107,7 +109,7 @@ The repository includes GitHub Actions workflows:
 - `.github/workflows/ci.yml`: runs tests, e2e, lint, build, and audit on `main`, pull requests, and manual dispatch.
 - `.github/workflows/release-pages.yml`: runs the release gates when a GitHub Release is published, builds the app with the GitHub Pages base path, and deploys `dist/` to GitHub Pages.
 
-Before the first Pages deployment, configure the repository Pages source to **GitHub Actions** in GitHub settings.
+GitHub Pages is configured to use GitHub Actions. The deploy workflow is release-gated, so the hosted app will be published after the first GitHub Release is published successfully.
 
 ## Structure
 
