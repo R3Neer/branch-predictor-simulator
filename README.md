@@ -67,6 +67,17 @@ Remaining v1 work:
 
 ## Local Development
 
+Windows helper:
+
+```bat
+project.bat install
+project.bat dev
+project.bat check
+project.bat clean
+```
+
+Direct npm commands:
+
 ```powershell
 npm.cmd install
 npm.cmd run dev
@@ -76,7 +87,7 @@ npm.cmd run lint
 npm.cmd run build
 ```
 
-Use `npm.cmd` on Windows if PowerShell blocks the `npm.ps1` wrapper.
+Use `project.bat` for the common Windows workflow, or `npm.cmd` directly if you want to run individual commands.
 
 Required gates before closing code changes:
 
