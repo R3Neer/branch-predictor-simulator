@@ -20,7 +20,7 @@ The living project documentation is:
 
 ## Current Status
 
-Estimated v1 progress: 45-50%.
+Estimated v1 progress: 50-55%.
 
 Implemented:
 
@@ -36,16 +36,16 @@ Implemented:
 - Editable manual sequence text format with `B1..Bn`, `T/NT`, optional address/index, comments, and repeated ranges.
 - Statistic and table answer checking.
 - Official templates for exercises 1, 2, 3, 4, 5, and 7 as versioned, engine-verified data.
-- Functional MUI/Zustand UI for templates, variants, editors, table, statistics, checking, and import/export.
+- Functional MUI/Zustand UI for templates, variants, editors, TanStack-powered table, statistics, checking, calculations, and import/export.
+- First Playwright e2e flow for run, reveal, check, Markdown export, and YAML export.
 
 Remaining v1 work:
 
 - Add richer official table projections for templates 2, 3, and 4.
 - Complete the visual predictor configurator and expected UI flows.
 - Replace text fields with Monaco where it improves the workflow.
-- Use TanStack Table in the main table if dynamic columns become complex enough.
 - Complete English-only user-facing copy and future i18n infrastructure only when explicitly requested.
-- Add Testing Library and Playwright coverage for critical UI flows.
+- Broaden Playwright coverage for template loading, manual sequence editing, YAML import, and responsive smoke checks.
 - Finish visual QA, responsive checks, basic accessibility, and release checklist.
 
 ## Stack
@@ -55,14 +55,14 @@ Remaining v1 work:
 - React
 - MUI Material UI
 - Zustand
-- TanStack Table, installed for advanced tables
+- TanStack Table
 - Monaco Editor, installed for code editors
 - Zod
 - yaml
 - i18next + react-i18next, installed for future localization work
 - Vitest
 - Testing Library
-- Playwright, planned for e2e
+- Playwright
 - ESLint + Prettier
 
 ## Local Development
@@ -71,6 +71,7 @@ Remaining v1 work:
 npm.cmd install
 npm.cmd run dev
 npm.cmd test
+npm.cmd run test:e2e
 npm.cmd run lint
 npm.cmd run build
 ```
@@ -81,6 +82,7 @@ Required gates before closing code changes:
 
 ```powershell
 npm.cmd test
+npm.cmd run test:e2e
 npm.cmd run lint
 npm.cmd run build
 ```

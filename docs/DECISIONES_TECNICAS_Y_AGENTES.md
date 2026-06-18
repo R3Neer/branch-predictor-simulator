@@ -23,7 +23,7 @@ This choice gives us:
 | UI | React | Ecosystem for tables, editors, state, and tests |
 | Components | MUI Material UI | Fits the requested Material-inspired interface |
 | UI state | Zustand | Explicit local session state |
-| Tables | TanStack Table | Installed for advanced dynamic tables |
+| Tables | TanStack Table | Main simulation table rendering |
 | Code editors | Monaco Editor | Installed for future editor upgrade |
 | Validation | Zod | YAML, templates, configs, forms |
 | YAML | yaml | User-visible import/export |
@@ -32,7 +32,7 @@ This choice gives us:
 | Markdown export | Custom exporter | Simple and deterministic |
 | Unit tests | Vitest | Domain and application tests |
 | UI tests | Testing Library | Component behavior |
-| E2E tests | Playwright | Planned for v1 flow closure |
+| E2E tests | Playwright | Critical browser flows |
 | Lint/format | ESLint + Prettier | Baseline consistency |
 | Documentation | Markdown + Mermaid where useful | Versioned with the repo |
 
@@ -120,7 +120,7 @@ Use Codex agents only for separable work. The lead engineer owns architecture, i
 - Explorers do not edit files unless explicitly assigned.
 - No agent reverts another agent's work.
 - Implementation workers must include relevant tests.
-- UI flows need component tests and, later, Playwright.
+- UI flows need component tests and Playwright coverage for critical paths.
 - The lead engineer integrates, resolves conflicts, runs verification, and decides whether the block is accepted.
 
 ## 8. Recommended Prompts

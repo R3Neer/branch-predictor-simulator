@@ -34,13 +34,14 @@ Required local commands before closing code changes:
 
 ```powershell
 npm.cmd test
+npm.cmd run test:e2e
 npm.cmd run lint
 npm.cmd run build
 ```
 
 ## 4. Current QA Status
 
-Synchronization date: 2026-06-14.
+Synchronization date: 2026-06-18.
 
 Covered today:
 
@@ -52,13 +53,13 @@ Covered today:
 - YAML, Zod schemas, and official template validation.
 - CSV/Markdown exporters.
 - Zustand store and `DashboardShell`.
+- First Playwright e2e flow covering run, solution reveal, calculation reveal, answer checking, Markdown export, and YAML export.
 
 Pending for v1:
 
-- Playwright tests for complete flows.
+- Broader Playwright coverage for template selection, manual sequence editing, YAML import, and responsive smoke checks.
 - Visual, responsive, and basic accessibility review.
 - Tests around final English-only copy if localization infrastructure is expanded.
-- Official verification for templates 2, 3, 4, 5, and 7.
 
 ## 5. Minimum Coverage By Piece
 

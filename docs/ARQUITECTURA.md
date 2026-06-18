@@ -75,7 +75,7 @@ Patterns intentionally avoided:
 These are accepted for the current stage:
 
 - The application layer is concentrated in `SimulationSessionService` instead of many small use cases. If it grows further, extract use-case classes around translation, simulation, checking, and persistence.
-- The UI currently uses MUI `TextField` editors and a basic HTML table. Monaco and TanStack Table are installed and should be introduced when they reduce UI complexity.
+- The UI currently uses MUI `TextField` editors and a TanStack-powered simulation table. Monaco is installed and should be introduced only when it reduces editor complexity.
 - Exam/solution mode exists in state and projections, but all visual leakage paths still need hardening.
 - The Zustand store still acts as the UI composition root and imports concrete infrastructure adapters directly. This is acceptable for the current local web app, but wiring should move into an application composition module if more screens or persistence adapters appear.
 
@@ -138,7 +138,7 @@ The current production import graph has no detected cycles. The following areas 
 | YAML | `SessionYamlMapper` | Implemented |
 | Official templates | Template data and validator | Verified for v1 |
 | UI | MUI/Zustand screen | Functional, incomplete |
-| E2E QA | Playwright | Pending |
+| E2E QA | Playwright | Initial critical flow covered |
 
 ## 10. Future Extension Points
 
