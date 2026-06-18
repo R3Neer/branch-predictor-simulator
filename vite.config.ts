@@ -30,6 +30,11 @@ export default defineConfig({
               priority: 20
             },
             {
+              name: "editor-vendor",
+              test: /node_modules[\\/](@codemirror|@lezer|crelt|style-mod|w3c-keyname)[\\/]/,
+              priority: 15
+            },
+            {
               name: "vendor",
               test: /node_modules[\\/]/,
               priority: 10

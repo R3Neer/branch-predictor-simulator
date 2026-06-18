@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 import { App } from "../screens/App";
 import { useSimulationStore } from "../stores/simulationStore";
@@ -119,13 +119,13 @@ printf(a);`);
   it("regenerates didactic RISC-V when the C source changes", () => {
     render(<App />);
 
-    fireEvent.change(screen.getByLabelText("Didactic C"), {
-      target: { value: "int a = 10; int i = 0; for (; i < 3; i++) a += i;" }
+    act(() => {
+      useSimulationStore.getState().updateCSource("int a = 10; int i = 0; for (; i < 3; i++) a += i;");
     });
 
     fireEvent.click(screen.getByRole("tab", { name: "RISC-V" }));
-    expect(screen.getByDisplayValue(/addi x7, x0, 3/)).toBeInTheDocument();
-    expect(screen.getByDisplayValue(/add x5, x5, x6/)).toBeInTheDocument();
+    expect(screen.getByLabelText("RISC-V")).toHaveTextContent("addi x7, x0, 3");
+    expect(screen.getByLabelText("RISC-V")).toHaveTextContent("add x5, x5, x6");
   });
 
   it("exports the current projected table to Markdown", () => {
@@ -167,8 +167,8 @@ printf(a);`);
     render(<App />);
 
     fireEvent.click(screen.getByRole("tab", { name: "Manual sequence" }));
-    fireEvent.change(screen.getByLabelText("Manual sequence"), {
-      target: { value: "B1 T index=0 # edited\nB1 NT index=0" }
+    act(() => {
+      useSimulationStore.getState().updateManualSequenceSource("B1 T index=0 # edited\nB1 NT index=0");
     });
     fireEvent.click(screen.getByRole("button", { name: "Run all" }));
 
@@ -204,11 +204,11 @@ printf(a);`);
     exportOption("Session as YAML");
     const exportedYaml = (screen.getByLabelText("YAML session") as HTMLTextAreaElement).value;
 
-    fireEvent.change(screen.getByLabelText("Didactic C"), {
-      target: { value: "int a = 10; int i = 0; for (; i < 3; i++) a += i;" }
+    act(() => {
+      useSimulationStore.getState().updateCSource("int a = 10; int i = 0; for (; i < 3; i++) a += i;");
     });
     fireEvent.click(screen.getByRole("tab", { name: "RISC-V" }));
-    expect((screen.getByLabelText("RISC-V") as HTMLTextAreaElement).value).toContain("addi x7, x0, 3");
+    expect(screen.getByLabelText("RISC-V")).toHaveTextContent("addi x7, x0, 3");
 
     fireEvent.change(screen.getByLabelText("Session YAML input"), {
       target: { value: exportedYaml }
@@ -217,9 +217,9 @@ printf(a);`);
     fireEvent.click(screen.getByRole("button", { name: "Import" }));
 
     fireEvent.click(screen.getByRole("tab", { name: "Didactic C" }));
-    expect((screen.getByLabelText("Didactic C") as HTMLTextAreaElement).value).toContain("#define N 10");
+    expect(screen.getByLabelText("Didactic C")).toHaveTextContent("#define N 10");
     fireEvent.click(screen.getByRole("tab", { name: "RISC-V" }));
-    expect((screen.getByLabelText("RISC-V") as HTMLTextAreaElement).value).toContain("bge x7, x5, end");
+    expect(screen.getByLabelText("RISC-V")).toHaveTextContent("bge x7, x5, end");
     expect(screen.getByText("Step 0 / 6")).toBeInTheDocument();
   });
 
@@ -227,12 +227,12 @@ printf(a);`);
     render(<App />);
 
     fireEvent.click(screen.getByRole("tab", { name: "RISC-V" }));
-    fireEvent.change(screen.getByLabelText("RISC-V"), {
-      target: { value: "0x00 bne x1, x2, loop # B1" }
+    act(() => {
+      useSimulationStore.getState().updateRiscVSource("0x00 bne x1, x2, loop # B1");
     });
 
     fireEvent.click(screen.getByRole("tab", { name: "Didactic C" }));
-    expect(screen.getByLabelText("Didactic C")).toHaveAttribute("readonly");
+    expect(screen.getByLabelText("Didactic C")).toHaveAttribute("contenteditable", "false");
     expect(screen.getByText(/RISC-V was edited directly/)).toBeInTheDocument();
 
     exportOption("Session as YAML");

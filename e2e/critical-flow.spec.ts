@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
 
 test("runs, reveals, checks, and exports a simulation", async ({ page }) => {
   await page.goto("/");
@@ -31,10 +31,10 @@ test("runs, reveals, checks, and exports a simulation", async ({ page }) => {
   await page.getByRole("button", { name: "Check" }).click();
   await expect(page.getByText("3 / 3 correct answers")).toBeVisible();
 
-  await page.getByRole("button", { name: "Markdown" }).click();
+  await exportOption(page, "Table as Markdown");
   await expect(page.getByLabel("Table export")).toContainText("| Iteration | Branch |");
 
-  await page.getByRole("button", { name: "YAML" }).click();
+  await exportOption(page, "Session as YAML");
   const yaml = page.getByLabel("YAML session");
   await expect(yaml).toContainText("version: 1");
   await expect(yaml).not.toContainText("statistics:");
@@ -44,22 +44,28 @@ test("runs, reveals, checks, and exports a simulation", async ({ page }) => {
 test("round-trips a manually edited sequence through YAML import", async ({ page }) => {
   await page.goto("/");
 
+  await page.getByRole("tab", { name: "Manual sequence" }).click();
   await page.getByLabel("Manual sequence").fill("B1 T index=0 # edited\nB1 NT index=0");
   await page.getByRole("button", { name: "Run all" }).click();
   await expect(page.getByText("Step 2 / 2")).toBeVisible();
 
-  await page.getByRole("button", { name: "YAML" }).click();
+  await exportOption(page, "Session as YAML");
   const exportedYaml = await page.getByLabel("YAML session").inputValue();
   expect(exportedYaml).toContain("comment: edited");
   expect(exportedYaml).toContain("actual: NT");
 
+  await page.getByRole("tab", { name: "Didactic C" }).click();
   await page.getByLabel("Didactic C").fill("int a = 10; int i = 0; for (; i < 3; i++) a += i;");
+  await page.getByRole("tab", { name: "RISC-V" }).click();
   await expect(page.getByLabel("RISC-V")).toContainText("addi x7, x0, 3");
 
+  await page.getByRole("button", { name: "Import YAML" }).click();
   await page.getByLabel("Session YAML input").fill(exportedYaml);
-  await page.getByRole("button", { name: "Import" }).click();
+  await page.getByRole("button", { name: "Import", exact: true }).click();
 
-  await expect(page.getByLabel("Manual sequence")).toHaveValue("B1 T index=0 # edited\nB1 NT index=0");
+  await page.getByRole("tab", { name: "Manual sequence" }).click();
+  await expect(page.getByLabel("Manual sequence")).toContainText("B1 T index=0 # edited");
+  await expect(page.getByLabel("Manual sequence")).toContainText("B1 NT index=0");
   await expect(page.getByText("Step 0 / 2")).toBeVisible();
 });
 
@@ -89,6 +95,11 @@ test("loads an official template variant and recalculates canonical statistics",
   await expect(page.getByRole("textbox", { name: "Hit rate", exact: true })).toHaveValue("20.00%");
   await expect(page.getByRole("textbox", { name: "Miss rate", exact: true })).toHaveValue("80.00%");
 });
+
+async function exportOption(page: Page, name: string) {
+  await page.getByRole("button", { name: "Export" }).click();
+  await page.getByRole("menuitem", { name }).click();
+}
 
 test("keeps enriched predictor details hidden in exam mode", async ({ page }) => {
   await page.goto("/");

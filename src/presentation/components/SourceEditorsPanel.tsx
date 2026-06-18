@@ -1,6 +1,9 @@
-import { Box, Chip, Paper, Stack, Tab, Tabs, TextField, Typography } from "@mui/material";
+import { Box, Chip, Paper, Stack, Tab, Tabs, Typography } from "@mui/material";
 import { useState } from "react";
 import type { SourceSyncState } from "../../application";
+import { CSourceEditor } from "./editors/CSourceEditor";
+import { ManualSequenceEditor } from "./editors/ManualSequenceEditor";
+import { RiscVSourceEditor } from "./editors/RiscVSourceEditor";
 import { visualTokens } from "../theme/tokens";
 
 export interface SourceEditorsPanelProps {
@@ -51,6 +54,17 @@ export function SourceEditorsPanel({
       helperText: "Manual sequence validation remains canonical in the domain parser."
     }
   }[activeSource];
+  const editor = {
+    c: (
+      <CSourceEditor
+        value={cSource}
+        readOnly={sourceSyncState === "desynced"}
+        onChange={onCSourceChange}
+      />
+    ),
+    riscv: <RiscVSourceEditor value={riscVSource} onChange={onRiscVSourceChange} />,
+    manual: <ManualSequenceEditor value={manualSequenceSource} onChange={onManualSequenceChange} />
+  }[activeSource];
 
   return (
     <Paper variant="outlined" sx={{ overflow: "hidden" }}>
@@ -92,24 +106,13 @@ export function SourceEditorsPanel({
         <Tab value="manual" label="Manual sequence" />
       </Tabs>
       <Box sx={{ p: 1.5 }}>
-        <TextField
-          label={activeEditor.label}
-          multiline
-          fullWidth
-          minRows={10}
-          value={activeEditor.value}
-          helperText={activeEditor.helperText}
-          onChange={(event) => activeEditor.onChange(event.target.value)}
-          inputProps={{ "aria-label": activeEditor.label }}
-          InputProps={{
-            readOnly: activeEditor.readOnly,
-            sx: {
-              alignItems: "flex-start",
-              fontFamily: '"Roboto Mono", Consolas, monospace',
-              fontSize: "0.875rem"
-            }
-          }}
-        />
+        <Stack spacing={0.75}>
+          <Typography component="h3" variant="h3">
+            {activeEditor.label}
+          </Typography>
+          <Box sx={{ border: 1, borderColor: "divider", borderRadius: 1, overflow: "hidden" }}>{editor}</Box>
+          <Typography variant="body2">{activeEditor.helperText}</Typography>
+        </Stack>
       </Box>
     </Paper>
   );
