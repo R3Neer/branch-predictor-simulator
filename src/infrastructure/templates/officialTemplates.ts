@@ -41,7 +41,7 @@ export const officialTemplates: readonly OfficialTemplate[] = [
   {
     id: "exercise-2-two-level",
     exerciseNumber: 2,
-    verificationStatus: "draft",
+    verificationStatus: "verified",
     title: "Exercise 2: two-level (1,1) and (1,2)",
     source: "ref_docs/Problems.pdf",
     pdfReference: "EC Problems - Predictors, exercise 2, pages 1-2",
@@ -74,9 +74,14 @@ export const officialTemplates: readonly OfficialTemplate[] = [
           countersPerEntry: 2,
           initialHistoryValue: 1,
           initialCounterValue: 1,
+          initialCounterValues: [
+            [0, 0],
+            [0, 0],
+            [0, 1]
+          ],
           indexPolicy: { type: "manual", entries: 3 }
         },
-        expectedStatistics: { hits: 9, misses: 6, missRate: 6 / 15 }
+        expectedStatistics: { hits: 9, misses: 6, hitRate: 9 / 15, missRate: 6 / 15 }
       },
       {
         id: "two-level-1-2",
@@ -93,16 +98,21 @@ export const officialTemplates: readonly OfficialTemplate[] = [
           countersPerEntry: 2,
           initialHistoryValue: 1,
           initialCounterValue: 3,
+          initialCounterValues: [
+            [0, 3],
+            [0, 3],
+            [0, 3]
+          ],
           indexPolicy: { type: "manual", entries: 3 }
         },
-        expectedStatistics: { hits: 3, misses: 12, missRate: 12 / 15 }
+        expectedStatistics: { hits: 3, misses: 12, hitRate: 3 / 15, missRate: 12 / 15 }
       }
     ]
   },
   {
     id: "exercise-3-two-level-3-2",
     exerciseNumber: 3,
-    verificationStatus: "draft",
+    verificationStatus: "verified",
     title: "Exercise 3: (3,2) predictor, 512 entries, 9 LSBs",
     source: "ref_docs/Problems.pdf",
     pdfReference: "EC Problems - Predictors, exercise 3, pages 2-3",
@@ -133,18 +143,27 @@ export const officialTemplates: readonly OfficialTemplate[] = [
           counterBits: 2,
           firstLevelEntries: 512,
           countersPerEntry: 8,
+          historyScope: "global",
           initialHistoryValue: 0,
           initialCounterValue: 1,
+          includeHistoryInMemory: false,
           indexPolicy: { type: "lsb", entries: 512, addressBits: 9 }
         },
-        expectedStatistics: { hits: 10, misses: 5, memoryBits: 8192, notes: "Official memory: 1 kB." }
+        expectedStatistics: {
+          hits: 10,
+          misses: 5,
+          hitRate: 10 / 15,
+          missRate: 5 / 15,
+          memoryBits: 8192,
+          notes: "Official memory: 1 kB."
+        }
       }
     ]
   },
   {
     id: "exercise-4-global-correlated-2-2",
     exerciseNumber: 4,
-    verificationStatus: "draft",
+    verificationStatus: "verified",
     title: "Exercise 4: correlated (2,2) with B1/B2",
     source: "ref_docs/Problems.pdf",
     pdfReference: "EC Problems - Predictors, exercise 4, pages 3-4",
@@ -175,11 +194,12 @@ export const officialTemplates: readonly OfficialTemplate[] = [
           counterBits: 2,
           firstLevelEntries: 2,
           countersPerEntry: 4,
+          historyScope: "global",
           initialHistoryValue: 3,
           initialCounterValue: 3,
           indexPolicy: { type: "manual", entries: 2 }
         },
-        expectedStatistics: { hits: 8, misses: 4, missRate: 4 / 12 }
+        expectedStatistics: { hits: 8, misses: 4, hitRate: 8 / 12, missRate: 4 / 12 }
       }
     ]
   },

@@ -33,6 +33,34 @@ describe("advanced predictors", () => {
     expect(predictor.memoryUsage(config)).toEqual({ bits: 5, entries: 2 });
   });
 
+  it("supports global history and explicit counter initialization in two-level predictors", () => {
+    const config: TwoLevelConfig = {
+      type: "two-level",
+      historyBits: 1,
+      counterBits: 1,
+      firstLevelEntries: 2,
+      countersPerEntry: 2,
+      historyScope: "global",
+      initialHistoryValue: 1,
+      initialCounterValue: 0,
+      initialCounterValues: [
+        [0, 1],
+        [1, 0]
+      ],
+      includeHistoryInMemory: false,
+      indexPolicy: { type: "manual", entries: 2 }
+    };
+    const predictor = new TwoLevelPredictor();
+    const initial = predictor.initialise(config);
+    const first = { order: 0, branchId: "B1", actual: "T" as const, manualIndex: 0 };
+    const second = { order: 1, branchId: "B2", actual: "NT" as const, manualIndex: 1 };
+    const afterFirst = predictor.update(first, "T", initial).stateAfter;
+
+    expect(predictor.predict(first, initial).trace.selectedEntry).toBe("0:1");
+    expect(predictor.predict(second, afterFirst).trace.selectedEntry).toBe("1:1");
+    expect(predictor.memoryUsage(config)).toEqual({ bits: 4, entries: 4 });
+  });
+
   it("uses global history for correlated prediction", () => {
     const config: GlobalCorrelatedConfig = {
       type: "global-correlated",

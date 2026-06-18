@@ -230,7 +230,7 @@ Implemented:
 - YAML with Zod validation and derived-data exclusion.
 - CSV/Markdown export.
 - Statistic and table answer checking.
-- Official templates for exercises 1, 2, 3, 4, 5, and 7; exercises 1, 5, and 7 are verified, while 2, 3, and 4 remain drafts.
+- Official templates for exercises 1, 2, 3, 4, 5, and 7 are engine-verified against expected official statistics.
 - Functional local MUI/Zustand UI.
 
 Incomplete:
@@ -240,4 +240,4 @@ Incomplete:
 - Fine-grained active RISC-V instruction highlighting.
 - Explicit UI action for stepping backward.
 - Playwright e2e, visual QA, responsive QA, and basic accessibility pass.
-- Official verification for templates 2, 3, and 4.
+- Richer official table projections for templates 2, 3, and 4.

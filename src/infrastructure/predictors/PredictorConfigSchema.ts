@@ -41,8 +41,11 @@ const twoLevelPredictorConfigSchema = z
     counterBits: positiveIntegerSchema,
     firstLevelEntries: positiveIntegerSchema,
     countersPerEntry: positiveIntegerSchema,
+    historyScope: z.union([z.literal("local"), z.literal("global")]).optional(),
     initialHistoryValue: nonNegativeIntegerSchema,
     initialCounterValue: nonNegativeIntegerSchema,
+    initialCounterValues: z.array(z.array(nonNegativeIntegerSchema)).optional(),
+    includeHistoryInMemory: z.boolean().optional(),
     indexPolicy: indexPolicySchema
   })
   .strict();
@@ -135,6 +138,7 @@ function validatePredictorConfigInvariants(
       assertPowerOfTwo(context, config.countersPerEntry, config.historyBits, ["countersPerEntry"], "countersPerEntry", "historyBits");
       assertFitsBits(context, config.initialHistoryValue, config.historyBits, ["initialHistoryValue"], "initialHistoryValue", "historyBits");
       assertFitsBits(context, config.initialCounterValue, config.counterBits, ["initialCounterValue"], "initialCounterValue", "counterBits");
+      assertInitialCounterValues(context, config.initialCounterValues, config.firstLevelEntries, config.countersPerEntry, config.counterBits);
       return;
     case "global-correlated":
       assertPowerOfTwo(context, config.phtEntries, config.ghrBits, ["phtEntries"], "phtEntries", "ghrBits");
@@ -187,6 +191,45 @@ function validatePredictorConfigInvariants(
       );
       assertFitsBits(context, config.initialCounterValue, config.counterBits, ["initialCounterValue"], "initialCounterValue", "counterBits");
   }
+}
+
+function assertInitialCounterValues(
+  context: z.RefinementCtx,
+  initialCounterValues: readonly (readonly number[])[] | undefined,
+  firstLevelEntries: number,
+  countersPerEntry: number,
+  counterBits: number
+) {
+  if (initialCounterValues === undefined) {
+    return;
+  }
+  if (initialCounterValues.length !== firstLevelEntries) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "initialCounterValues rows must match firstLevelEntries",
+      path: ["initialCounterValues"]
+    });
+    return;
+  }
+  initialCounterValues.forEach((row, rowIndex) => {
+    if (row.length !== countersPerEntry) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "initialCounterValues columns must match countersPerEntry",
+        path: ["initialCounterValues", rowIndex]
+      });
+    }
+    row.forEach((value, counterIndex) =>
+      assertFitsBits(
+        context,
+        value,
+        counterBits,
+        ["initialCounterValues", rowIndex, counterIndex],
+        "initialCounterValues value",
+        "counterBits"
+      )
+    );
+  });
 }
 
 function assertReachableLsbEntries(

@@ -20,14 +20,18 @@ export interface TwoLevelConfig {
   readonly counterBits: number;
   readonly firstLevelEntries: number;
   readonly countersPerEntry: number;
+  readonly historyScope?: "local" | "global";
   readonly initialHistoryValue: number;
   readonly initialCounterValue: number;
+  readonly initialCounterValues?: readonly (readonly number[])[];
+  readonly includeHistoryInMemory?: boolean;
   readonly indexPolicy: OneLevelIndexPolicy;
 }
 
 export interface TwoLevelState extends PredictorState {
   readonly type: "two-level";
   readonly histories: readonly HistoryRegister[];
+  readonly globalHistory?: HistoryRegister;
   readonly counters: readonly (readonly SaturatingCounter[])[];
   readonly indexPolicy: OneLevelIndexPolicy;
 }
@@ -45,10 +49,16 @@ export class TwoLevelPredictor
         { length: config.firstLevelEntries },
         () => new HistoryRegister(config.historyBits, config.initialHistoryValue)
       ),
-      counters: Array.from({ length: config.firstLevelEntries }, () =>
-        Array.from(
-          { length: config.countersPerEntry },
-          () => new SaturatingCounter(config.counterBits, config.initialCounterValue)
+      globalHistory:
+        config.historyScope === "global"
+          ? new HistoryRegister(config.historyBits, config.initialHistoryValue)
+          : undefined,
+      counters: Array.from({ length: config.firstLevelEntries }, (_row, rowIndex) =>
+        Array.from({ length: config.countersPerEntry }, (_counter, counterIndex) =>
+          new SaturatingCounter(
+            config.counterBits,
+            config.initialCounterValues?.[rowIndex]?.[counterIndex] ?? config.initialCounterValue
+          )
         )
       )
     };
@@ -57,7 +67,7 @@ export class TwoLevelPredictor
   predict(execution: BranchExecution, state: TwoLevelState): PredictionResult<TwoLevelState> {
     const { firstIndex, counterIndex } = this.resolveIndexes(execution, state);
     const counter = state.counters[firstIndex][counterIndex];
-    const history = state.histories[firstIndex];
+    const history = state.globalHistory ?? state.histories[firstIndex];
 
     return {
       prediction: counter.predict(),
@@ -68,7 +78,7 @@ export class TwoLevelPredictor
         indexCalculation: {
           policy: "two-level",
           historyBits: history.toBits(),
-          operation: "first-level index + local history",
+          operation: state.globalHistory ? "first-level index + global history" : "first-level index + local history",
           resultIndex: `${firstIndex}:${counterIndex}`
         },
         compactExplanation: `Entry ${firstIndex} history ${history.toBits()} selects counter ${counterIndex}.`
@@ -89,12 +99,19 @@ export class TwoLevelPredictor
         ? row.map((counter, index) => (index === counterIndex ? after : counter))
         : row
     );
-    const histories = state.histories.map((history, index) =>
-      index === firstIndex ? history.shiftIn(actualOutcome) : history
-    );
+    const histories = state.globalHistory
+      ? state.histories
+      : state.histories.map((history, index) =>
+          index === firstIndex ? history.shiftIn(actualOutcome) : history
+        );
 
     return {
-      stateAfter: { ...state, counters, histories },
+      stateAfter: {
+        ...state,
+        counters,
+        histories,
+        globalHistory: state.globalHistory?.shiftIn(actualOutcome)
+      },
       trace: { counterAfter: after.toBits(), saturationApplied: before.value === after.value }
     };
   }
@@ -104,7 +121,11 @@ export class TwoLevelPredictor
 
     return {
       bits:
-        config.firstLevelEntries * config.historyBits +
+        (config.includeHistoryInMemory === false
+          ? 0
+          : config.historyScope === "global"
+            ? config.historyBits
+            : config.firstLevelEntries * config.historyBits) +
         config.firstLevelEntries * config.countersPerEntry * config.counterBits,
       entries: config.firstLevelEntries * config.countersPerEntry
     };
@@ -115,7 +136,8 @@ export class TwoLevelPredictor
       state.indexPolicy.type === "manual"
         ? new ManualIndexer().resolveIndex(execution, state.indexPolicy).index
         : new LsbIndexer().resolveIndex(execution, state.indexPolicy).index;
-    const counterIndex = state.histories[firstIndex].value % state.counters[firstIndex].length;
+    const history = state.globalHistory ?? state.histories[firstIndex];
+    const counterIndex = history.value % state.counters[firstIndex].length;
 
     return { firstIndex, counterIndex };
   }
@@ -130,5 +152,18 @@ export class TwoLevelPredictor
     }
     new HistoryRegister(config.historyBits, config.initialHistoryValue);
     new SaturatingCounter(config.counterBits, config.initialCounterValue);
+    if (config.initialCounterValues !== undefined) {
+      if (config.initialCounterValues.length !== config.firstLevelEntries) {
+        throw new Error("initialCounterValues rows must match firstLevelEntries");
+      }
+      for (const row of config.initialCounterValues) {
+        if (row.length !== config.countersPerEntry) {
+          throw new Error("initialCounterValues columns must match countersPerEntry");
+        }
+        for (const value of row) {
+          new SaturatingCounter(config.counterBits, value);
+        }
+      }
+    }
   }
 }

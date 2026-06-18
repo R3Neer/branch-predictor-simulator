@@ -7,6 +7,10 @@ describe("officialTemplates", () => {
     expect(officialTemplates.map((template) => template.exerciseNumber)).toEqual([1, 2, 3, 4, 5, 7]);
   });
 
+  it("keeps every v1 official template verified", () => {
+    expect(officialTemplates.every((template) => template.verificationStatus === "verified")).toBe(true);
+  });
+
   it("validates template structure for every official v1 exercise", () => {
     const reports = officialTemplates.map((template) => new TemplateValidator().validate(template));
 
@@ -88,15 +92,14 @@ describe("officialTemplates", () => {
   });
 
   it("keeps non-certified template discrepancies as warnings", () => {
-    const draft = officialTemplates.find((template) => template.verificationStatus === "draft");
-    expect(draft).toBeDefined();
+    const draft = { ...officialTemplates[0], verificationStatus: "draft" as const };
 
     const report = new TemplateValidator().validate({
-      ...draft!,
+      ...draft,
       variants: [
         {
-          ...draft!.variants[0],
-          expectedStatistics: { ...draft!.variants[0].expectedStatistics, hits: 99 }
+          ...draft.variants[0],
+          expectedStatistics: { ...draft.variants[0].expectedStatistics, hits: 99 }
         }
       ]
     });
@@ -106,15 +109,14 @@ describe("officialTemplates", () => {
   });
 
   it("keeps draft rate discrepancies as warnings", () => {
-    const draft = officialTemplates.find((template) => template.verificationStatus === "draft");
-    expect(draft).toBeDefined();
+    const draft = { ...officialTemplates[0], verificationStatus: "draft" as const };
 
     const report = new TemplateValidator().validate({
-      ...draft!,
+      ...draft,
       variants: [
         {
-          ...draft!.variants[0],
-          expectedStatistics: { ...draft!.variants[0].expectedStatistics, hitRate: 0.99 }
+          ...draft.variants[0],
+          expectedStatistics: { ...draft.variants[0].expectedStatistics, hitRate: 0.99 }
         }
       ]
     });

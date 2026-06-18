@@ -17,8 +17,11 @@ describe("predictorConfigSchema", () => {
         counterBits: 2,
         firstLevelEntries: 1,
         countersPerEntry: 4,
+        historyScope: "global",
         initialHistoryValue: 0,
         initialCounterValue: 1,
+        initialCounterValues: [[0, 1, 2, 3]],
+        includeHistoryInMemory: false,
         indexPolicy: { type: "manual", entries: 1 }
       },
       {
@@ -88,6 +91,20 @@ describe("predictorConfigSchema", () => {
         counterBits: 2,
         initialGhrValue: 0,
         initialCounterValue: 1
+      })
+    ).toThrow();
+
+    expect(() =>
+      predictorConfigSchema.parse({
+        type: "two-level",
+        historyBits: 1,
+        counterBits: 1,
+        firstLevelEntries: 2,
+        countersPerEntry: 2,
+        initialHistoryValue: 0,
+        initialCounterValue: 0,
+        initialCounterValues: [[0, 1]],
+        indexPolicy: { type: "manual", entries: 2 }
       })
     ).toThrow();
   });
