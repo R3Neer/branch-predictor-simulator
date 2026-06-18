@@ -14,6 +14,8 @@ Use this checklist before tagging or publishing a v1 build.
 - Run `npm.cmd run lint`.
 - Run `npm.cmd run build`.
 - Review build warnings and record any accepted warning.
+- Confirm the GitHub `CI` workflow is green on `main`.
+- Confirm the `Release And Deploy Pages` workflow is green for the published release.
 
 ## 3. Local App Smoke
 
@@ -63,3 +65,10 @@ Use this checklist before tagging or publishing a v1 build.
 - Run `npm.cmd audit`.
 - Prefer targeted dependency upgrades.
 - Do not use forced breaking audit fixes without a separate decision.
+
+## 9. GitHub Pages
+
+- Confirm repository Pages source is set to GitHub Actions.
+- Publish a GitHub Release.
+- Confirm the release workflow runs tests before deployment.
+- Confirm the deployed Pages URL opens the simulator.

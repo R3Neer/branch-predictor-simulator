@@ -98,6 +98,15 @@ npm.cmd run lint
 npm.cmd run build
 ```
 
+## GitHub Automation
+
+The repository includes GitHub Actions workflows:
+
+- `.github/workflows/ci.yml`: runs tests, e2e, lint, build, and audit on `main`, pull requests, and manual dispatch.
+- `.github/workflows/release-pages.yml`: runs the release gates when a GitHub Release is published, builds the app with the GitHub Pages base path, and deploys `dist/` to GitHub Pages.
+
+Before the first Pages deployment, configure the repository Pages source to **GitHub Actions** in GitHub settings.
+
 ## Structure
 
 ```text
