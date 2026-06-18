@@ -24,7 +24,7 @@ This choice gives us:
 | Components | MUI Material UI | Fits the requested Material-inspired interface |
 | UI state | Zustand | Explicit local session state |
 | Tables | TanStack Table | Main simulation table rendering |
-| Code editors | MUI text fields first; CodeMirror 6 planned for the redesign | Monaco is deferred; CodeMirror is the v1 presentation editor target |
+| Code editors | CodeMirror 6 | Monaco is deferred; source highlighting remains presentation-only |
 | Validation | Zod | YAML, templates, configs, forms |
 | YAML | yaml | User-visible import/export |
 | Localization | Static English copy | UI switching is deferred; current project text must remain English-only |

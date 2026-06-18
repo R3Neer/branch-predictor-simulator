@@ -2,6 +2,30 @@
 
 This document defines what the branch predictor simulator should borrow from the sibling `Pipeline Table Editor`, how CodeMirror 6 should enter the source editing experience, and how the next redesign work should be staged.
 
+## Implementation Status
+
+Synchronization date: 2026-06-18.
+
+Implemented:
+
+- theme tokens and MUI component overrides based on the reference style,
+- left sidebar plus main workspace layout,
+- one active source editor at a time through source tabs,
+- CodeMirror 6 source editors,
+- C highlighting through `@codemirror/lang-cpp`,
+- presentation-only RISC-V and manual sequence semantic highlighting,
+- table shell styling, sticky headers, semantic pills, and horizontal scroll,
+- single `Export` menu for CSV, Markdown, and YAML,
+- collapsible YAML import,
+- updated Vitest and Playwright coverage for the changed flows,
+- build chunk splitting for CodeMirror through `editor-vendor`.
+
+Remaining redesign work:
+
+- move calculations, exported output, statistics, and checking into a calmer result surface if the current sidebar still feels too dense,
+- run another manual visual QA pass after the next polish block,
+- consider lazy-loading editors only if future editor features make `editor-vendor` too large.
+
 Reference notes:
 
 - `docs/UI_STYLE_REFERENCE_NOTES.md`
@@ -165,19 +189,15 @@ CodeMirror facts from official docs:
 
 ### Package Direction
 
-Likely packages:
+Installed packages:
 
-- `codemirror`
 - `@codemirror/view`
 - `@codemirror/state`
 - `@codemirror/language`
 - `@codemirror/commands`
-- `@codemirror/search`
-- `@codemirror/autocomplete`
-- `@codemirror/lint`
-- C/C++ language support package for C-like syntax highlighting.
+- `@codemirror/lang-cpp`
 
-Exact package names and versions should be verified at implementation time before installing.
+Search, autocomplete, lint, and broad language-data packages remain out of the current implementation until there is a concrete user need.
 
 ### Editor Architecture
 
@@ -190,7 +210,8 @@ src/presentation/components/editors/
   RiscVSourceEditor.tsx
   ManualSequenceEditor.tsx
   codeMirrorTheme.ts
-  codeMirrorExtensions.ts
+  semanticHighlighting.ts
+  semanticTokens.ts
 ```
 
 Rules:

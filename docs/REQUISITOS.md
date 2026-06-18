@@ -199,11 +199,11 @@ Desired style:
 
 Main layout:
 
-- C editor.
-- RISC-V editor.
-- Manual sequence editor.
-- Predictor table.
-- Side panel for configuration, templates, statistics, and checking.
+- Left control sidebar for templates, variants, mode, predictor configuration, statistics, checking, and session import.
+- Main workspace with one active source editor at a time: Didactic C, RISC-V, or Manual sequence.
+- CodeMirror 6 source editors with external C highlighting and presentation-only RISC-V/manual semantic highlighting.
+- Predictor table as the central workspace artifact.
+- Table-adjacent controls for step, back, run all, reset, and export.
 
 ## 12. Architecture Requirements
 
@@ -236,7 +236,8 @@ Implemented:
 - CSV/Markdown export.
 - Statistic and table answer checking.
 - Official templates for exercises 1, 2, 3, 4, 5, and 7 are engine-verified against expected official statistics.
-- Functional local MUI/Zustand UI with a TanStack-powered simulation table.
+- Functional local MUI/Zustand UI with a TanStack-powered simulation table, left control sidebar, source tabs, and table-centered workspace.
+- CodeMirror 6 editors for Didactic C, RISC-V, and manual branch sequences, including external C highlighting and presentation-only RISC-V/manual semantic highlighting.
 - Validated JSON predictor configuration editor connected to the same schema used by YAML import.
 - Playwright e2e coverage for critical run/reveal/check/export flows, manual sequence YAML round trip, template/variant selection, exam leakage guard, and responsive smoke checks.
 - Manual visual/responsive/accessibility review, including mobile table scrolling and keyboard focus checks.

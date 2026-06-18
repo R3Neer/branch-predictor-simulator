@@ -42,6 +42,7 @@ Implemented:
 - Statistic and table answer checking.
 - Official templates for exercises 1, 2, 3, 4, 5, and 7 as versioned, engine-verified data.
 - Functional MUI/Zustand UI for templates, variants, editors, TanStack-powered table, statistics, checking, calculations, and import/export.
+- Tool-style UI with a left control sidebar, source tabs, CodeMirror 6 editors, table-centered workspace, export menu, and collapsible YAML import.
 - Validated JSON predictor configuration editor for custom v1 predictor settings.
 - Step forward, step backward, full run, and reset through the canonical trace.
 - Playwright e2e coverage for run, reveal, check, Markdown export, YAML export, manual sequence editing, YAML import, template/variant selection, exam leakage, and responsive smoke checks.
@@ -60,6 +61,7 @@ Remaining release work:
 - Vite
 - React
 - MUI Material UI
+- CodeMirror 6
 - Zustand
 - TanStack Table
 - Zod
@@ -137,6 +139,7 @@ src/
 |   +-- templates/
 +-- presentation/
     +-- components/
+    |   +-- editors/
     +-- composition/
     +-- screens/
     +-- stores/
