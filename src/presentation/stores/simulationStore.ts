@@ -3,6 +3,7 @@ import {
   SimulationSessionService,
   type CTranslationDiagnostic,
   type BranchSequence,
+  type CalculationView,
   type CorrectionReport,
   type DynamicTableView,
   type Language,
@@ -48,6 +49,7 @@ interface SimulationStoreState {
   readonly exportedTable?: string;
   readonly exportedSessionYaml?: string;
   readonly statistics?: StatisticsSet;
+  readonly calculationViews?: readonly CalculationView[];
   readonly selectTemplate: (templateId: string) => void;
   readonly selectVariant: (variantId: string) => void;
   readonly updateCSource: (source: string) => void;
@@ -62,6 +64,7 @@ interface SimulationStoreState {
   readonly runAll: () => void;
   readonly reset: () => void;
   readonly calculateStats: () => void;
+  readonly revealCalculations: () => void;
   readonly checkAnswers: () => void;
   readonly exportTable: (format: TableExportFormat) => void;
   readonly exportSessionYaml: () => void;
@@ -134,6 +137,7 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       currentStep: 0,
       trace: [],
       statistics: undefined,
+      calculationViews: undefined,
       correctionReport: undefined,
       statAnswerInputs: emptyStatAnswerInputs,
       tableAnswerSource: "",
@@ -158,6 +162,7 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       currentStep: 0,
       trace: [],
       statistics: undefined,
+      calculationViews: undefined,
       correctionReport: undefined,
       tableAnswerError: undefined,
       exportedTable: undefined,
@@ -180,6 +185,7 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       currentStep: 0,
       trace: [],
       statistics: undefined,
+      calculationViews: undefined,
       correctionReport: undefined,
       tableAnswerError: undefined,
       exportedTable: undefined,
@@ -200,6 +206,7 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       currentStep: 0,
       trace: [],
       statistics: undefined,
+      calculationViews: undefined,
       correctionReport: undefined,
       tableAnswerError: undefined,
       exportedTable: undefined,
@@ -218,6 +225,7 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
         currentStep: 0,
         trace: [],
         statistics: undefined,
+        calculationViews: undefined,
         correctionReport: undefined,
         exportedTable: undefined,
         exportedSessionYaml: undefined,
@@ -268,6 +276,7 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
         currentStep: 0,
         trace: [],
         statistics: undefined,
+        calculationViews: undefined,
         correctionReport: undefined,
         statAnswerInputs: emptyStatAnswerInputs,
         tableAnswerSource: "",
@@ -284,7 +293,7 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
     }
   },
   setMode: (mode) => {
-    set({ mode, tableView: sessionService.project(get().trace, mode) });
+    set({ mode, calculationViews: undefined, tableView: sessionService.project(get().trace, mode) });
   },
   step: () => {
     const state = get();
@@ -297,6 +306,7 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       currentStep: trace.length,
       trace,
       statistics: undefined,
+      calculationViews: undefined,
       correctionReport: undefined,
       exportedTable: undefined,
       exportedSessionYaml: undefined,
@@ -310,6 +320,7 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       currentStep: trace.length,
       trace,
       statistics: undefined,
+      calculationViews: undefined,
       correctionReport: undefined,
       exportedTable: undefined,
       exportedSessionYaml: undefined,
@@ -321,6 +332,7 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       currentStep: 0,
       trace: [],
       statistics: undefined,
+      calculationViews: undefined,
       correctionReport: undefined,
       exportedTable: undefined,
       exportedSessionYaml: undefined,
@@ -331,6 +343,14 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
     set({
       statistics: sessionService.calculateStats(get().trace, get().activePredictorConfig)
     });
+  },
+  revealCalculations: () => {
+    const state = get();
+    if (state.mode !== "solution") {
+      set({ calculationViews: undefined });
+      return;
+    }
+    set({ calculationViews: sessionService.buildCalculationViews(state.trace) });
   },
   checkAnswers: () => {
     try {

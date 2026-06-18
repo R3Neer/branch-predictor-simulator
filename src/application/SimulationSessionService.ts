@@ -8,6 +8,7 @@ import { ManualBranchSequenceParser } from "../domain/source/ManualBranchSequenc
 import { RiscVBranchSequenceAdapter } from "../domain/source/RiscVBranchSequenceAdapter";
 import { RiscVParser } from "../domain/source/RiscVParser";
 import type { SourceBundle } from "../domain/source/SourceBundle";
+import { CalculationViewBuilder, type CalculationView } from "./projectors/CalculationViewBuilder";
 import { TableProjector, type DynamicTableView, type SessionMode } from "./projectors/TableProjector";
 import { TraceStatsRunner } from "./TraceStatsRunner";
 
@@ -46,6 +47,7 @@ export interface SimulationSessionServiceDependencies {
   readonly tableAnswerParser?: TableAnswerParser;
   readonly answerChecker?: AnswerChecker;
   readonly traceStatsRunner?: TraceStatsRunner;
+  readonly calculationViewBuilder?: CalculationViewBuilder;
   readonly tableExporters: Record<TableExportFormat, TableExporterPort>;
   readonly sessionYamlMapper: SessionYamlPort;
 }
@@ -59,6 +61,7 @@ export class SimulationSessionService {
   private readonly tableAnswerParser: TableAnswerParser;
   private readonly answerChecker: AnswerChecker;
   private readonly traceStatsRunner: TraceStatsRunner;
+  private readonly calculationViewBuilder: CalculationViewBuilder;
   private readonly tableExporters: Record<TableExportFormat, TableExporterPort>;
   private readonly sessionYamlMapper: SessionYamlPort;
 
@@ -72,6 +75,7 @@ export class SimulationSessionService {
     this.tableAnswerParser = dependencies.tableAnswerParser ?? new TableAnswerParser();
     this.answerChecker = dependencies.answerChecker ?? new AnswerChecker();
     this.traceStatsRunner = dependencies.traceStatsRunner ?? new TraceStatsRunner();
+    this.calculationViewBuilder = dependencies.calculationViewBuilder ?? new CalculationViewBuilder();
     this.tableExporters = dependencies.tableExporters;
     this.sessionYamlMapper = dependencies.sessionYamlMapper;
   }
@@ -134,6 +138,12 @@ export class SimulationSessionService {
 
   calculateStats(trace: readonly TraceStep[], predictorConfig: unknown): StatisticsSet {
     return this.traceStatsRunner.calculateFromTrace(trace, predictorConfig);
+  }
+
+  buildCalculationViews(trace: readonly TraceStep[], expanded = true): readonly CalculationView[] {
+    return trace.map((step) =>
+      expanded ? this.calculationViewBuilder.expanded(step) : this.calculationViewBuilder.compact(step)
+    );
   }
 
   checkStatAnswers(

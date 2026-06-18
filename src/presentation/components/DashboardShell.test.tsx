@@ -46,9 +46,24 @@ printf(a);`);
 
     fireEvent.click(screen.getByRole("button", { name: "Step" }));
     expect(screen.getAllByRole("row")[1].children[4]).toHaveTextContent("");
+    expect(screen.queryByRole("button", { name: "Show calculations" })).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("tab", { name: "Solution" }));
     expect(screen.getAllByRole("row")[1].children[4]).not.toHaveTextContent("");
+  });
+
+  it("reveals calculation views only after solution mode requests them", () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Step" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Solution" }));
+
+    expect(screen.queryByText(/Step 1:/)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Show calculations" }));
+
+    expect(screen.getByText(/Step 1:/)).toBeInTheDocument();
+    expect(screen.getAllByText("Index").length).toBeGreaterThan(1);
+    expect(screen.getByText("Counter")).toBeInTheDocument();
   });
 
   it("regenerates didactic RISC-V when the C source changes", () => {

@@ -1,4 +1,5 @@
 import { Alert, AppBar, Box, Stack, Tab, Tabs, Toolbar, Typography } from "@mui/material";
+import { CalculationPanel } from "./CalculationPanel";
 import { ConfigurationPanel } from "./ConfigurationPanel";
 import { ImportSessionPanel } from "./ImportSessionPanel";
 import { SimulationTablePanel } from "./SimulationTablePanel";
@@ -32,6 +33,7 @@ export function DashboardShell() {
     exportedTable,
     exportedSessionYaml,
     statistics,
+    calculationViews,
     selectTemplate,
     selectVariant,
     updateCSource,
@@ -46,6 +48,7 @@ export function DashboardShell() {
     runAll,
     reset,
     calculateStats,
+    revealCalculations,
     checkAnswers,
     exportTable,
     exportSessionYaml
@@ -110,6 +113,12 @@ export function DashboardShell() {
             onExportCsv={() => exportTable("csv")}
             onExportMarkdown={() => exportTable("markdown")}
             onExportSessionYaml={exportSessionYaml}
+          />
+          <CalculationPanel
+            mode={mode}
+            traceCount={currentStep}
+            calculationViews={calculationViews}
+            onRevealCalculations={revealCalculations}
           />
           <ImportSessionPanel
             sessionYamlInput={sessionYamlInput}
