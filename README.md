@@ -47,7 +47,7 @@ Implemented:
 Remaining v1 work:
 
 - Finish visual QA, responsive review beyond smoke tests, basic accessibility, and release checklist execution.
-- Finish release checklist execution and decide whether to split the large Vite bundle before or after v1.
+- Finish release checklist execution.
 
 ## Stack
 
@@ -57,10 +57,8 @@ Remaining v1 work:
 - MUI Material UI
 - Zustand
 - TanStack Table
-- Monaco Editor, installed for code editors
 - Zod
 - yaml
-- i18next + react-i18next, installed for future localization work
 - Vitest
 - Testing Library
 - Playwright

@@ -24,10 +24,10 @@ This choice gives us:
 | Components | MUI Material UI | Fits the requested Material-inspired interface |
 | UI state | Zustand | Explicit local session state |
 | Tables | TanStack Table | Main simulation table rendering |
-| Code editors | Monaco Editor | Installed for future editor upgrade |
+| Code editors | MUI text fields | Monaco is deferred until an editor-specific need justifies the bundle cost |
 | Validation | Zod | YAML, templates, configs, forms |
 | YAML | yaml | User-visible import/export |
-| Localization | i18next + react-i18next | Installed, but current project text must remain English-only |
+| Localization | Static English copy | UI switching is deferred; current project text must remain English-only |
 | CSV export | Custom exporter | Simple and trace-projection based |
 | Markdown export | Custom exporter | Simple and deterministic |
 | Unit tests | Vitest | Domain and application tests |

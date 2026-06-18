@@ -75,7 +75,7 @@ Patterns intentionally avoided:
 These are accepted for the current stage:
 
 - The application layer is concentrated in `SimulationSessionService` instead of many small use cases. If it grows further, extract use-case classes around translation, simulation, checking, and persistence.
-- The UI currently uses MUI `TextField` editors and a TanStack-powered simulation table. Monaco is installed and should be introduced only when it reduces editor complexity.
+- The UI currently uses MUI `TextField` editors and a TanStack-powered simulation table. Monaco is deferred until it reduces editor complexity enough to justify the bundle cost.
 - Exam/solution mode exists in state and projections, with e2e coverage for enriched table leakage. Keep reviewing new UI surfaces for accidental solution exposure.
 - The presentation layer owns a small composition module that wires concrete infrastructure adapters into the application service. The Zustand store consumes that composition instead of instantiating adapters directly.
 

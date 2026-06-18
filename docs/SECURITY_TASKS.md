@@ -39,8 +39,8 @@ After Vite/Vitest upgrade:
 | `vitest` | Resolved | Direct dev dependency through `vitest`, `vite-node`, and `vite` | Upgraded to `4.1.9` |
 | `vite` | Resolved | Direct dev dependency and transitive through Vitest | Upgraded to `8.0.16` |
 | `esbuild` | Resolved | Transitive through Vite | Covered by the Vite upgrade |
-| `dompurify` | Resolved | Transitive through Monaco | Overridden to `3.4.11` |
-| `monaco-editor` | Low | Transitive `dompurify` exposure | Review whether Monaco is still needed before v1 |
+| `dompurify` | Resolved | Former Monaco transitive dependency | Removed with Monaco |
+| `monaco-editor` | Resolved | Transitive `dompurify` exposure | Removed because v1 uses MUI text fields |
 | `form-data` | Resolved | Transitive dependency | Overridden to `4.0.6` |
 
 ## V1 Policy
@@ -55,5 +55,4 @@ After Vite/Vitest upgrade:
 
 ## Next Actions
 
-1. Consider removing Monaco before v1 if plain text editors remain enough and Monaco is not used by the UI.
-2. Re-run `npm.cmd audit` after each dependency block and update this file.
+1. Re-run `npm.cmd audit` after each dependency block and update this file.
