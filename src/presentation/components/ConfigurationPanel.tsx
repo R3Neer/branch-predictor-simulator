@@ -25,6 +25,58 @@ interface VariantOption {
   readonly title: string;
 }
 
+interface StatisticField {
+  readonly key: StatisticKey;
+  readonly answerLabel: string;
+  readonly resultLabel: string;
+  readonly format: (statistics: StatisticsSet) => string;
+}
+
+const statisticFields: readonly StatisticField[] = [
+  {
+    key: "hits",
+    answerLabel: "Hits answer",
+    resultLabel: "Hits",
+    format: (statistics) => String(statistics.hits)
+  },
+  {
+    key: "misses",
+    answerLabel: "Misses answer",
+    resultLabel: "Misses",
+    format: (statistics) => String(statistics.misses)
+  },
+  {
+    key: "hitRate",
+    answerLabel: "Hit rate answer",
+    resultLabel: "Hit rate",
+    format: (statistics) => `${(statistics.hitRate.value * 100).toFixed(2)}%`
+  },
+  {
+    key: "missRate",
+    answerLabel: "Miss rate answer",
+    resultLabel: "Miss rate",
+    format: (statistics) => `${(statistics.missRate.value * 100).toFixed(2)}%`
+  },
+  {
+    key: "memoryBits",
+    answerLabel: "Memory bits answer",
+    resultLabel: "Memory bits",
+    format: (statistics) => (statistics.memoryBits === undefined ? "" : String(statistics.memoryBits))
+  },
+  {
+    key: "usedEntries",
+    answerLabel: "Used entries answer",
+    resultLabel: "Used entries",
+    format: (statistics) => String(statistics.usedEntries)
+  },
+  {
+    key: "aliasingEvents",
+    answerLabel: "Aliasing events answer",
+    resultLabel: "Aliasing events",
+    format: (statistics) => String(statistics.aliasingEvents)
+  }
+];
+
 export interface ConfigurationPanelProps {
   readonly templates: readonly TemplateOption[];
   readonly selectedTemplateId: string;
@@ -126,24 +178,15 @@ export function ConfigurationPanel({
             sx: { fontFamily: '"Roboto Mono", Consolas, monospace', fontSize: "0.8125rem" }
           }}
         />
-        <TextField
-          label="Hits answer"
-          size="small"
-          value={statAnswerInputs.hits}
-          onChange={(event) => onStatAnswerChange("hits", event.target.value)}
-        />
-        <TextField
-          label="Misses answer"
-          size="small"
-          value={statAnswerInputs.misses}
-          onChange={(event) => onStatAnswerChange("misses", event.target.value)}
-        />
-        <TextField
-          label="Hit rate answer"
-          size="small"
-          value={statAnswerInputs.hitRate}
-          onChange={(event) => onStatAnswerChange("hitRate", event.target.value)}
-        />
+        {statisticFields.map((field) => (
+          <TextField
+            key={field.key}
+            label={field.answerLabel}
+            size="small"
+            value={statAnswerInputs[field.key]}
+            onChange={(event) => onStatAnswerChange(field.key, event.target.value)}
+          />
+        ))}
         <Button startIcon={<FactCheckIcon />} variant="outlined" onClick={onCheckAnswers}>
           Check
         </Button>
@@ -159,14 +202,15 @@ export function ConfigurationPanel({
             {correctionReport.summary.correct} / {correctionReport.summary.total} correct answers
           </Alert>
         ) : undefined}
-        <TextField label="Hits" size="small" value={statistics?.hits ?? ""} InputProps={{ readOnly: true }} />
-        <TextField label="Misses" size="small" value={statistics?.misses ?? ""} InputProps={{ readOnly: true }} />
-        <TextField
-          label="Hit rate"
-          size="small"
-          value={statistics ? `${(statistics.hitRate.value * 100).toFixed(2)}%` : ""}
-          InputProps={{ readOnly: true }}
-        />
+        {statisticFields.map((field) => (
+          <TextField
+            key={field.resultLabel}
+            label={field.resultLabel}
+            size="small"
+            value={statistics ? field.format(statistics) : ""}
+            InputProps={{ readOnly: true }}
+          />
+        ))}
         <Button variant="contained" onClick={onCalculateStats}>
           Calculate
         </Button>

@@ -41,6 +41,19 @@ printf(a);`);
     expect(screen.getByLabelText("Misses")).toHaveValue("1");
   });
 
+  it("shows all canonical statistic outputs after calculation", () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Run all" }));
+    fireEvent.click(screen.getByRole("button", { name: "Calculate" }));
+
+    expect(screen.getByLabelText("Hit rate")).toHaveValue("16.67%");
+    expect(screen.getByLabelText("Miss rate")).toHaveValue("83.33%");
+    expect(screen.getByLabelText("Memory bits")).toHaveValue("2");
+    expect(screen.getByLabelText("Used entries")).toHaveValue("1");
+    expect(screen.getByLabelText("Aliasing events")).toHaveValue("0");
+  });
+
   it("reveals prediction data in solution mode", () => {
     render(<App />);
 
