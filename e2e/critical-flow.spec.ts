@@ -35,3 +35,25 @@ test("runs, reveals, checks, and exports a simulation", async ({ page }) => {
   await expect(yaml).not.toContainText("statistics:");
   await expect(yaml).not.toContainText("tableView:");
 });
+
+test("round-trips a manually edited sequence through YAML import", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByLabel("Manual sequence").fill("B1 T index=0 # edited\nB1 NT index=0");
+  await page.getByRole("button", { name: "Run all" }).click();
+  await expect(page.getByText("Step 2 / 2")).toBeVisible();
+
+  await page.getByRole("button", { name: "YAML" }).click();
+  const exportedYaml = await page.getByLabel("YAML session").inputValue();
+  expect(exportedYaml).toContain("comment: edited");
+  expect(exportedYaml).toContain("actual: NT");
+
+  await page.getByLabel("Didactic C").fill("int a = 10; int i = 0; for (; i < 3; i++) a += i;");
+  await expect(page.getByLabel("RISC-V")).toContainText("addi x7, x0, 3");
+
+  await page.getByLabel("Session YAML input").fill(exportedYaml);
+  await page.getByRole("button", { name: "Import" }).click();
+
+  await expect(page.getByLabel("Manual sequence")).toHaveValue("B1 T index=0 # edited\nB1 NT index=0");
+  await expect(page.getByText("Step 0 / 2")).toBeVisible();
+});

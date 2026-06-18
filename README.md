@@ -37,7 +37,7 @@ Implemented:
 - Statistic and table answer checking.
 - Official templates for exercises 1, 2, 3, 4, 5, and 7 as versioned, engine-verified data.
 - Functional MUI/Zustand UI for templates, variants, editors, TanStack-powered table, statistics, checking, calculations, and import/export.
-- First Playwright e2e flow for run, reveal, check, Markdown export, and YAML export.
+- Playwright e2e coverage for run, reveal, check, Markdown export, YAML export, manual sequence editing, and YAML import.
 
 Remaining v1 work:
 
@@ -45,7 +45,7 @@ Remaining v1 work:
 - Complete the visual predictor configurator and expected UI flows.
 - Replace text fields with Monaco where it improves the workflow.
 - Complete English-only user-facing copy and future i18n infrastructure only when explicitly requested.
-- Broaden Playwright coverage for template loading, manual sequence editing, YAML import, and responsive smoke checks.
+- Broaden Playwright coverage for template loading and responsive smoke checks.
 - Finish visual QA, responsive checks, basic accessibility, and release checklist.
 
 ## Stack
