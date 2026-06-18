@@ -53,11 +53,11 @@ Covered today:
 - YAML, Zod schemas, and official template validation.
 - CSV/Markdown exporters.
 - Zustand store and `DashboardShell`.
-- Playwright e2e flows covering run, solution reveal, calculation reveal, answer checking, Markdown export, YAML export, manual sequence editing, and YAML import.
+- Playwright e2e flows covering run, solution reveal, calculation reveal, answer checking, Markdown export, YAML export, manual sequence editing, YAML import, and template/variant selection.
 
 Pending for v1:
 
-- Broader Playwright coverage for template selection and responsive smoke checks.
+- Broader Playwright coverage for responsive smoke checks.
 - Visual, responsive, and basic accessibility review.
 - Tests around final English-only copy if localization infrastructure is expanded.
 

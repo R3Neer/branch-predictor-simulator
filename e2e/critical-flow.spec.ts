@@ -57,3 +57,30 @@ test("round-trips a manually edited sequence through YAML import", async ({ page
   await expect(page.getByLabel("Manual sequence")).toHaveValue("B1 T index=0 # edited\nB1 NT index=0");
   await expect(page.getByText("Step 0 / 2")).toBeVisible();
 });
+
+test("loads an official template variant and recalculates canonical statistics", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByRole("combobox", { name: "Template" }).click();
+  await page.getByRole("option", { name: "Exercise 2: two-level (1,1) and (1,2)" }).click();
+  await expect(page.getByRole("textbox", { name: "Session", exact: true })).toHaveValue(
+    "Exercise 2: two-level (1,1) and (1,2)"
+  );
+  await expect(page.getByText("Step 0 / 15")).toBeVisible();
+
+  await page.getByRole("combobox", { name: "Variant" }).click();
+  await page.getByRole("option", { name: "Two-level predictor (1,2)" }).click();
+  await expect(page.getByRole("textbox", { name: "Active variant", exact: true })).toHaveValue(
+    "Two-level predictor (1,2)"
+  );
+  await expect(page.getByText("Step 0 / 15")).toBeVisible();
+
+  await page.getByRole("button", { name: "Run all" }).click();
+  await expect(page.getByText("Step 15 / 15")).toBeVisible();
+
+  await page.getByRole("button", { name: "Calculate" }).click();
+  await expect(page.getByRole("textbox", { name: "Hits", exact: true })).toHaveValue("3");
+  await expect(page.getByRole("textbox", { name: "Misses", exact: true })).toHaveValue("12");
+  await expect(page.getByRole("textbox", { name: "Hit rate", exact: true })).toHaveValue("20.00%");
+  await expect(page.getByRole("textbox", { name: "Miss rate", exact: true })).toHaveValue("80.00%");
+});
