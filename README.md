@@ -74,11 +74,15 @@ Remaining release work:
 Windows helper:
 
 ```bat
+project.bat
+project.bat start
 project.bat install
 project.bat dev
 project.bat check
 project.bat clean
 ```
+
+Double-click `project.bat` to build the production app, open the browser, and serve it locally at `http://127.0.0.1:4173`. Keep the terminal open while using the simulator.
 
 Direct npm commands:
 
