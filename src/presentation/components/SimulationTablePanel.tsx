@@ -1,12 +1,8 @@
-import DownloadIcon from "@mui/icons-material/Download";
-import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
-import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import RestartAltIcon from "@mui/icons-material/RestartAlt";
-import SkipNextIcon from "@mui/icons-material/SkipNext";
 import { Box, Button, Divider, Paper, Stack, TextField, Typography } from "@mui/material";
 import { flexRender, getCoreRowModel, useReactTable, type ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 import type { DynamicTableView } from "../../application";
+import { BackIcon, DownloadIcon, PlayIcon, ResetIcon, RunAllIcon } from "./ActionIcons";
 
 export interface SimulationTablePanelProps {
   readonly currentStep: number;
@@ -63,7 +59,7 @@ export function SimulationTablePanel({
           sx={{ p: 1.5, alignItems: "center", flexWrap: "wrap" }}
         >
           <Button
-            startIcon={<KeyboardBackspaceIcon />}
+            startIcon={<BackIcon />}
             variant="outlined"
             onClick={onStepBack}
             disabled={currentStep === 0}
@@ -71,7 +67,7 @@ export function SimulationTablePanel({
             Back
           </Button>
           <Button
-            startIcon={<PlayArrowIcon />}
+            startIcon={<PlayIcon />}
             variant="contained"
             onClick={onStep}
             disabled={currentStep >= totalSteps}
@@ -79,7 +75,7 @@ export function SimulationTablePanel({
             Step
           </Button>
           <Button
-            startIcon={<SkipNextIcon />}
+            startIcon={<RunAllIcon />}
             variant="outlined"
             onClick={onRunAll}
             disabled={currentStep >= totalSteps}
@@ -87,7 +83,7 @@ export function SimulationTablePanel({
             Run all
           </Button>
           <Button
-            startIcon={<RestartAltIcon />}
+            startIcon={<ResetIcon />}
             variant="outlined"
             color="inherit"
             onClick={onReset}

@@ -28,13 +28,17 @@ After targeted overrides:
 - Moderate: 2.
 - Low: 0.
 
+After Vite/Vitest upgrade:
+
+- Total vulnerabilities: 0.
+
 ## Findings
 
 | Package | Severity | Path | Current decision |
 | --- | --- | --- | --- |
-| `vitest` | Critical | Direct dev dependency through `vitest`, `vite-node`, and `vite` | Needs planned major upgrade validation; audit suggests `vitest@4.1.9` |
-| `vite` | High | Direct dev dependency and transitive through Vitest | Needs planned major upgrade validation; audit suggests `vite@8.0.16` |
-| `esbuild` | Moderate | Transitive through Vite | Covered by the Vite upgrade path |
+| `vitest` | Resolved | Direct dev dependency through `vitest`, `vite-node`, and `vite` | Upgraded to `4.1.9` |
+| `vite` | Resolved | Direct dev dependency and transitive through Vitest | Upgraded to `8.0.16` |
+| `esbuild` | Resolved | Transitive through Vite | Covered by the Vite upgrade |
 | `dompurify` | Resolved | Transitive through Monaco | Overridden to `3.4.11` |
 | `monaco-editor` | Low | Transitive `dompurify` exposure | Review whether Monaco is still needed before v1 |
 | `form-data` | Resolved | Transitive dependency | Overridden to `4.0.6` |
@@ -51,6 +55,5 @@ After targeted overrides:
 
 ## Next Actions
 
-1. Evaluate a dedicated Vite/Vitest major upgrade branch after v1 feature hardening.
-2. Consider removing Monaco before v1 if plain text editors remain enough and Monaco is not used by the UI.
-3. Re-run `npm.cmd audit` after each dependency block and update this file.
+1. Consider removing Monaco before v1 if plain text editors remain enough and Monaco is not used by the UI.
+2. Re-run `npm.cmd audit` after each dependency block and update this file.

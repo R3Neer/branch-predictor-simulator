@@ -1,6 +1,6 @@
-import FunctionsIcon from "@mui/icons-material/Functions";
 import { Box, Button, Paper, Stack, Typography } from "@mui/material";
 import type { CalculationView, SessionMode } from "../../application";
+import { CalculateIcon } from "./ActionIcons";
 
 export interface CalculationPanelProps {
   readonly mode: SessionMode;
@@ -27,7 +27,7 @@ export function CalculationPanel({
             Calculations
           </Typography>
           <Button
-            startIcon={<FunctionsIcon />}
+            startIcon={<CalculateIcon />}
             variant="outlined"
             onClick={onRevealCalculations}
             disabled={traceCount === 0}

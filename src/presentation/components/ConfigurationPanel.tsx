@@ -1,4 +1,3 @@
-import FactCheckIcon from "@mui/icons-material/FactCheck";
 import {
   Alert,
   Button,
@@ -13,6 +12,7 @@ import {
   Typography
 } from "@mui/material";
 import type { CorrectionReport, StatisticKey, StatisticsSet } from "../../application";
+import { CheckIcon } from "./ActionIcons";
 
 interface TemplateOption {
   readonly id: string;
@@ -209,7 +209,7 @@ export function ConfigurationPanel({
           />
         ))}
         <Button
-          startIcon={<FactCheckIcon />}
+          startIcon={<CheckIcon />}
           variant="outlined"
           onClick={onCheckAnswers}
           disabled={traceCount === 0}
