@@ -44,8 +44,9 @@ printf(a);`);
     expect(screen.getByRole("button", { name: "Back" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Calculate" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Check" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "CSV" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "Markdown" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Export" }));
+    expect(screen.getByRole("menuitem", { name: "Table as CSV" })).toHaveAttribute("aria-disabled", "true");
+    expect(screen.getByRole("menuitem", { name: "Table as Markdown" })).toHaveAttribute("aria-disabled", "true");
   });
 
   it("shows all canonical statistic outputs after calculation", () => {
@@ -118,12 +119,11 @@ printf(a);`);
   it("regenerates didactic RISC-V when the C source changes", () => {
     render(<App />);
 
-    expect((screen.getAllByRole("textbox")[1] as HTMLTextAreaElement).value).toContain("bge x7, x5, end");
-
-    fireEvent.change(screen.getAllByRole("textbox")[0], {
+    fireEvent.change(screen.getByLabelText("Didactic C"), {
       target: { value: "int a = 10; int i = 0; for (; i < 3; i++) a += i;" }
     });
 
+    fireEvent.click(screen.getByRole("tab", { name: "RISC-V" }));
     expect(screen.getByDisplayValue(/addi x7, x0, 3/)).toBeInTheDocument();
     expect(screen.getByDisplayValue(/add x5, x5, x6/)).toBeInTheDocument();
   });
@@ -132,7 +132,7 @@ printf(a);`);
     render(<App />);
 
     fireEvent.click(screen.getByRole("button", { name: "Step" }));
-    fireEvent.click(screen.getByRole("button", { name: "Markdown" }));
+    exportOption("Table as Markdown");
 
     const exportArea = screen.getByLabelText("Table export") as HTMLTextAreaElement;
     expect(exportArea.value).toContain("| Iteration | Branch |");
@@ -166,6 +166,7 @@ printf(a);`);
   it("runs and exports a manually edited branch sequence", () => {
     render(<App />);
 
+    fireEvent.click(screen.getByRole("tab", { name: "Manual sequence" }));
     fireEvent.change(screen.getByLabelText("Manual sequence"), {
       target: { value: "B1 T index=0 # edited\nB1 NT index=0" }
     });
@@ -173,7 +174,7 @@ printf(a);`);
 
     expect(screen.getByText("Step 2 / 2")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "YAML" }));
+    exportOption("Session as YAML");
     const yamlArea = screen.getByLabelText("YAML session") as HTMLTextAreaElement;
     expect(yamlArea.value).toContain("comment: edited");
     expect(yamlArea.value).toContain("actual: NT");
@@ -184,7 +185,7 @@ printf(a);`);
 
     fireEvent.click(screen.getByRole("button", { name: "Step" }));
     fireEvent.click(screen.getByRole("button", { name: "Calculate" }));
-    fireEvent.click(screen.getByRole("button", { name: "YAML" }));
+    exportOption("Session as YAML");
 
     const yamlArea = screen.getByLabelText("YAML session") as HTMLTextAreaElement;
     expect(yamlArea.value).toContain("version: 1");
@@ -198,14 +199,16 @@ printf(a);`);
   it("imports a YAML session and restores its editable sources", () => {
     render(<App />);
 
+    fireEvent.click(screen.getByRole("button", { name: "Import YAML" }));
     expect(screen.getByRole("button", { name: "Import" })).toBeDisabled();
-    fireEvent.click(screen.getByRole("button", { name: "YAML" }));
+    exportOption("Session as YAML");
     const exportedYaml = (screen.getByLabelText("YAML session") as HTMLTextAreaElement).value;
 
-    fireEvent.change(screen.getAllByRole("textbox")[0], {
+    fireEvent.change(screen.getByLabelText("Didactic C"), {
       target: { value: "int a = 10; int i = 0; for (; i < 3; i++) a += i;" }
     });
-    expect((screen.getAllByRole("textbox")[1] as HTMLTextAreaElement).value).toContain("addi x7, x0, 3");
+    fireEvent.click(screen.getByRole("tab", { name: "RISC-V" }));
+    expect((screen.getByLabelText("RISC-V") as HTMLTextAreaElement).value).toContain("addi x7, x0, 3");
 
     fireEvent.change(screen.getByLabelText("Session YAML input"), {
       target: { value: exportedYaml }
@@ -213,26 +216,33 @@ printf(a);`);
     expect(screen.getByRole("button", { name: "Import" })).toBeEnabled();
     fireEvent.click(screen.getByRole("button", { name: "Import" }));
 
-    const textboxes = screen.getAllByRole("textbox") as HTMLTextAreaElement[];
-    expect(textboxes[0].value).toContain("#define N 10");
-    expect(textboxes[1].value).toContain("bge x7, x5, end");
+    fireEvent.click(screen.getByRole("tab", { name: "Didactic C" }));
+    expect((screen.getByLabelText("Didactic C") as HTMLTextAreaElement).value).toContain("#define N 10");
+    fireEvent.click(screen.getByRole("tab", { name: "RISC-V" }));
+    expect((screen.getByLabelText("RISC-V") as HTMLTextAreaElement).value).toContain("bge x7, x5, end");
     expect(screen.getByText("Step 0 / 6")).toBeInTheDocument();
   });
 
   it("blocks C and omits it from YAML after manual RISC-V edits", () => {
     render(<App />);
 
-    const [cEditor, riscVEditor] = screen.getAllByRole("textbox") as HTMLTextAreaElement[];
-    fireEvent.change(riscVEditor, {
+    fireEvent.click(screen.getByRole("tab", { name: "RISC-V" }));
+    fireEvent.change(screen.getByLabelText("RISC-V"), {
       target: { value: "0x00 bne x1, x2, loop # B1" }
     });
 
-    expect(cEditor).toHaveAttribute("readonly");
-    expect(screen.getByText(/RISC-V was edited manually/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "Didactic C" }));
+    expect(screen.getByLabelText("Didactic C")).toHaveAttribute("readonly");
+    expect(screen.getByText(/RISC-V was edited directly/)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "YAML" }));
+    exportOption("Session as YAML");
     const yamlArea = screen.getByLabelText("YAML session") as HTMLTextAreaElement;
     expect(yamlArea.value).toContain("syncState: desynced");
     expect(yamlArea.value).not.toContain("cSource:");
   });
 });
+
+function exportOption(name: string) {
+  fireEvent.click(screen.getByRole("button", { name: "Export" }));
+  fireEvent.click(screen.getByRole("menuitem", { name }));
+}

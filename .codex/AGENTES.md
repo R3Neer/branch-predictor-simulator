@@ -12,6 +12,8 @@ Current priorities:
 
 - `Official Templates`: verify exercises 2, 3, 4, 5, and 7 against `ref_docs/Problems.pdf`.
 - `Material UI`: complete the visual predictor configurator, table workflow, and Monaco/TanStack integration where useful.
+- `Interaction Design Guardian`: guide the UI redesign toward the Pipeline Table Editor language using `docs/UI_STYLE_REFERENCE_NOTES.md` and `docs/UI_REDESIGN_ADOPTION_PLAN.md`.
+- `Code Editor And Highlighting Specialist`: prepare CodeMirror 6 and presentation-only C/RISC-V/manual highlighting without changing canonical parsers.
 - `English Copy`: keep all project text and user-facing copy in English.
 - `E2E QA`: create Playwright flows for loading a template, simulating, checking, and exporting.
 - `SOLID And Patterns Guardian`: watch `SimulationSessionService` growth and propose extractions only when they reduce real complexity.
@@ -25,6 +27,8 @@ Current priorities:
 | SOLID And Patterns Guardian | `explorer` | refactoring, SOLID, design patterns, layer dependencies, structural debt |
 | Simulation Engine | `worker` | `src/domain/**`, domain unit tests |
 | Academic UX Design | `explorer` | flows, hierarchy, exam/solution mode, empty states, errors, teaching clarity |
+| Interaction Design Guardian | `explorer` | visual hierarchy, editor-reference fidelity, responsive behavior, accessibility, Exam/Solution clarity |
+| Code Editor And Highlighting Specialist | `worker` or `explorer` | CodeMirror 6, external C highlighting, RISC-V/manual semantic highlighting, editor tests |
 | Material Visual QA | `explorer` or `worker` | MUI coherence, table density, responsive behavior, contrast, Playwright screenshots |
 | Material UI | `worker` | `src/presentation/**` |
 | Persistence | `worker` | `src/infrastructure/persistence/**`, YAML repositories and drafts |
@@ -49,6 +53,8 @@ Rules:
 - Workers must not edit design/governance docs unless explicitly assigned by the lead after user approval.
 - Explorers do not edit files unless explicitly assigned.
 - The SOLID guardian proposes refactors and structural risks; it does not change requirements.
+- The Interaction Design Guardian and Code Editor And Highlighting Specialist are presentation-only roles; they do not change domain parsing, prediction logic, canonical traces, statistics, or persistence contracts.
+- UI redesign agents should use `docs/UI_STYLE_REFERENCE_NOTES.md` and `docs/UI_REDESIGN_ADOPTION_PLAN.md` before proposing implementation changes.
 - If a recommendation conflicts with requirements, architecture, or QA policy, the higher document wins.
 - Architecture or QA policy changes require explicit user confirmation.
 - The lead may edit operational docs to reflect confirmed decisions.

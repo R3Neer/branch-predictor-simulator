@@ -1,6 +1,7 @@
-import { Box } from "@mui/material";
+import { Box, Chip, Paper, Stack, Tab, Tabs, TextField, Typography } from "@mui/material";
+import { useState } from "react";
 import type { SourceSyncState } from "../../application";
-import { EditorPanel } from "./EditorPanel";
+import { visualTokens } from "../theme/tokens";
 
 export interface SourceEditorsPanelProps {
   readonly cSource: string;
@@ -12,6 +13,8 @@ export interface SourceEditorsPanelProps {
   readonly onManualSequenceChange: (value: string) => void;
 }
 
+type ActiveSource = "c" | "riscv" | "manual";
+
 export function SourceEditorsPanel({
   cSource,
   riscVSource,
@@ -21,22 +24,93 @@ export function SourceEditorsPanel({
   onRiscVSourceChange,
   onManualSequenceChange
 }: SourceEditorsPanelProps) {
+  const [activeSource, setActiveSource] = useState<ActiveSource>("c");
+  const activeEditor = {
+    c: {
+      label: "Didactic C",
+      value: cSource,
+      readOnly: sourceSyncState === "desynced",
+      onChange: onCSourceChange,
+      helperText:
+        sourceSyncState === "desynced"
+          ? "RISC-V was edited directly. Reset or load a template to synchronize C again."
+          : "Editing C regenerates RISC-V and the manual branch sequence."
+    },
+    riscv: {
+      label: "RISC-V",
+      value: riscVSource,
+      readOnly: false,
+      onChange: onRiscVSourceChange,
+      helperText: "Editing RISC-V updates the branch sequence and marks C as desynchronized."
+    },
+    manual: {
+      label: "Manual sequence",
+      value: manualSequenceSource,
+      readOnly: false,
+      onChange: onManualSequenceChange,
+      helperText: "Manual sequence validation remains canonical in the domain parser."
+    }
+  }[activeSource];
+
   return (
-    <Box
-      sx={{
-        display: "grid",
-        gridTemplateColumns: { xs: "1fr", md: "1fr 1fr", xl: "1fr 1fr 1fr" },
-        gap: 2
-      }}
-    >
-      <EditorPanel
-        title="Didactic C"
-        value={cSource}
-        readOnly={sourceSyncState === "desynced"}
-        onChange={onCSourceChange}
-      />
-      <EditorPanel title="RISC-V" value={riscVSource} onChange={onRiscVSourceChange} />
-      <EditorPanel title="Manual sequence" value={manualSequenceSource} onChange={onManualSequenceChange} />
-    </Box>
+    <Paper variant="outlined" sx={{ overflow: "hidden" }}>
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={1}
+        sx={{
+          alignItems: { xs: "stretch", sm: "center" },
+          borderBottom: 1,
+          borderColor: "divider",
+          bgcolor: visualTokens.color.surfaceSoft,
+          px: 1.5,
+          py: 1
+        }}
+      >
+        <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+          <Typography component="h2" variant="h2">
+            Source
+          </Typography>
+          <Typography variant="body2">Choose one source view at a time.</Typography>
+        </Box>
+        <Chip
+          size="small"
+          label={sourceSyncState === "synced" ? "C synchronized" : "C desynchronized"}
+          color={sourceSyncState === "synced" ? "success" : "warning"}
+          variant="outlined"
+        />
+      </Stack>
+      <Tabs
+        value={activeSource}
+        aria-label="Source editor"
+        variant="scrollable"
+        allowScrollButtonsMobile
+        onChange={(_event, value: ActiveSource) => setActiveSource(value)}
+        sx={{ px: 1, borderBottom: 1, borderColor: "divider" }}
+      >
+        <Tab value="c" label="Didactic C" />
+        <Tab value="riscv" label="RISC-V" />
+        <Tab value="manual" label="Manual sequence" />
+      </Tabs>
+      <Box sx={{ p: 1.5 }}>
+        <TextField
+          label={activeEditor.label}
+          multiline
+          fullWidth
+          minRows={10}
+          value={activeEditor.value}
+          helperText={activeEditor.helperText}
+          onChange={(event) => activeEditor.onChange(event.target.value)}
+          inputProps={{ "aria-label": activeEditor.label }}
+          InputProps={{
+            readOnly: activeEditor.readOnly,
+            sx: {
+              alignItems: "flex-start",
+              fontFamily: '"Roboto Mono", Consolas, monospace',
+              fontSize: "0.875rem"
+            }
+          }}
+        />
+      </Box>
+    </Paper>
   );
 }

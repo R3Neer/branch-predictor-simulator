@@ -1,51 +1,58 @@
 import { createTheme } from "@mui/material/styles";
+import { componentOverrides } from "./componentOverrides";
+import { visualTokens } from "./tokens";
 
 export const theme = createTheme({
-  components: {
-    MuiButtonBase: {
-      styleOverrides: {
-        root: {
-          "&.Mui-focusVisible": {
-            outline: "3px solid #0b8594",
-            outlineOffset: 2
-          }
-        }
-      }
-    }
-  },
+  components: componentOverrides,
   palette: {
     mode: "light",
     primary: {
-      main: "#1f6f78"
+      main: visualTokens.color.accent
     },
     secondary: {
-      main: "#7a4e13"
+      main: visualTokens.color.counter
     },
     background: {
-      default: "#f7f8f8",
-      paper: "#ffffff"
+      default: visualTokens.color.background,
+      paper: visualTokens.color.surface
     },
     success: {
-      main: "#2f7d32"
+      main: visualTokens.color.success
     },
     error: {
-      main: "#b3261e"
-    }
+      main: visualTokens.color.danger
+    },
+    text: {
+      primary: visualTokens.color.text,
+      secondary: visualTokens.color.textMuted
+    },
+    divider: visualTokens.color.border
   },
   shape: {
-    borderRadius: 6
+    borderRadius: visualTokens.radius.control
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
     h1: {
-      fontSize: "1.5rem",
-      fontWeight: 500,
-      letterSpacing: 0
+      fontSize: "1.25rem",
+      fontWeight: 650,
+      letterSpacing: 0,
+      lineHeight: 1.2
     },
     h2: {
-      fontSize: "1rem",
-      fontWeight: 500,
-      letterSpacing: 0
+      fontSize: "0.95rem",
+      fontWeight: 650,
+      letterSpacing: 0,
+      lineHeight: 1.25
+    },
+    h3: {
+      fontSize: "0.85rem",
+      fontWeight: 650,
+      letterSpacing: 0,
+      lineHeight: 1.25
+    },
+    body2: {
+      color: visualTokens.color.textMuted
     },
     button: {
       letterSpacing: 0,

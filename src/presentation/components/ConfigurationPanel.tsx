@@ -1,11 +1,11 @@
 import {
   Alert,
+  Box,
   Button,
   Divider,
   FormControl,
   InputLabel,
   MenuItem,
-  Paper,
   Select,
   Stack,
   TextField,
@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import type { CorrectionReport, StatisticKey, StatisticsSet } from "../../application";
 import { CheckIcon } from "./ActionIcons";
+import { visualTokens } from "../theme/tokens";
 
 interface TemplateOption {
   readonly id: string;
@@ -126,10 +127,10 @@ export function ConfigurationPanel({
 }: ConfigurationPanelProps) {
   const selectedTemplate = templates.find((template) => template.id === selectedTemplateId) ?? templates[0];
   return (
-    <Paper variant="outlined" sx={{ p: 2, alignSelf: "start", position: { lg: "sticky" }, top: { lg: 16 } }}>
-      <Stack spacing={2}>
+    <Box>
+      <Stack spacing={1.25}>
         <Typography component="h2" variant="h2">
-          Configuration
+          Session setup
         </Typography>
         <FormControl fullWidth size="small">
           <InputLabel id="template-label">Template</InputLabel>
@@ -184,9 +185,9 @@ export function ConfigurationPanel({
           minRows={3}
           InputProps={{ readOnly: true }}
         />
-        <Divider />
+        <Divider sx={{ borderColor: visualTokens.color.border }} />
         <Typography component="h2" variant="h2">
-          Statistics
+          Results
         </Typography>
         <TextField
           label="Table answers"
@@ -241,6 +242,6 @@ export function ConfigurationPanel({
           Calculate
         </Button>
       </Stack>
-    </Paper>
+    </Box>
   );
 }

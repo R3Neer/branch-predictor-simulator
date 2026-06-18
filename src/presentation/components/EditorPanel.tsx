@@ -1,4 +1,5 @@
 import { Box, Paper, TextField, Typography } from "@mui/material";
+import { visualTokens } from "../theme/tokens";
 
 export interface EditorPanelProps {
   readonly title: string;
@@ -10,7 +11,15 @@ export interface EditorPanelProps {
 export function EditorPanel({ title, value, readOnly = false, onChange }: EditorPanelProps) {
   return (
     <Paper variant="outlined" sx={{ overflow: "hidden" }}>
-      <Box sx={{ px: 1.5, py: 1, bgcolor: "#eef3f3", borderBottom: 1, borderColor: "divider" }}>
+      <Box
+        sx={{
+          bgcolor: visualTokens.color.surfaceMuted,
+          borderBottom: 1,
+          borderColor: "divider",
+          px: 1.5,
+          py: 1
+        }}
+      >
         <Typography component="h2" variant="h2">
           {title}
         </Typography>

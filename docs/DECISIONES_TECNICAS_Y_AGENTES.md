@@ -24,7 +24,7 @@ This choice gives us:
 | Components | MUI Material UI | Fits the requested Material-inspired interface |
 | UI state | Zustand | Explicit local session state |
 | Tables | TanStack Table | Main simulation table rendering |
-| Code editors | MUI text fields | Monaco is deferred until an editor-specific need justifies the bundle cost |
+| Code editors | MUI text fields first; CodeMirror 6 planned for the redesign | Monaco is deferred; CodeMirror is the v1 presentation editor target |
 | Validation | Zod | YAML, templates, configs, forms |
 | YAML | yaml | User-visible import/export |
 | Localization | Static English copy | UI switching is deferred; current project text must remain English-only |
@@ -103,6 +103,8 @@ Use Codex agents only for separable work. The lead engineer owns architecture, i
 | Architect Reviewer | `explorer` | Review broad technical risk and architecture fit | Before major changes |
 | Simulation Engine | `worker` | `src/domain/predictors`, simulation, stats | When contracts and tests are clear |
 | Academic UX Design | `explorer` | Flow, hierarchy, exam/solution mode, empty states, errors, teaching clarity | Before new screens or complex interaction |
+| Interaction Design Guardian | `explorer` | Adopt the Pipeline Table Editor visual language, protect tool hierarchy, responsive behavior, accessibility, and Exam/Solution clarity | Before and after each UI redesign phase |
+| Code Editor And Highlighting Specialist | `worker` or `explorer` | CodeMirror 6 integration, C highlighting through external libraries, presentation-only RISC-V/manual semantic highlighting | During editor redesign work, without changing parsing or simulation contracts |
 | Material Visual QA | `explorer` or `worker` | MUI coherence, table density, responsive behavior, contrast, screenshots | Before closing UI milestones |
 | Material UI | `worker` | `src/presentation/**` | When application contracts are stable |
 | Persistence | `worker` | YAML, Zod, session repositories | When persistence contracts are clear |
@@ -121,6 +123,8 @@ Use Codex agents only for separable work. The lead engineer owns architecture, i
 - No agent reverts another agent's work.
 - Implementation workers must include relevant tests.
 - UI flows need component tests and Playwright coverage for critical paths.
+- The Interaction Design Guardian and Code Editor And Highlighting Specialist operate only on presentation, UX, editor styling, and editor tests; they must not change domain parsing, predictor behavior, canonical traces, or statistics.
+- UI redesign work uses `docs/UI_STYLE_REFERENCE_NOTES.md` and `docs/UI_REDESIGN_ADOPTION_PLAN.md` as reference material.
 - The lead engineer integrates, resolves conflicts, runs verification, and decides whether the block is accepted.
 
 ## 8. Recommended Prompts
