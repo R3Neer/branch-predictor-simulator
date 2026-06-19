@@ -11,7 +11,7 @@ The simulator must allow users to:
 - Check user-entered solutions.
 - Load official templates based on the reference PDF.
 - Work from didactic C, RISC-V, or a manual branch sequence.
-- Enter manual branch sequences, including repeated ranges.
+- Enter manual branch sequences through an editable row table, including repeated ranges through the canonical text format.
 - Save and load sessions as YAML.
 
 The first version focuses on the branch predictor exercises in the PDF. The architecture must remain ready for more advanced predictors in later versions.
@@ -87,7 +87,7 @@ The initial RISC-V parser must support `beq`, `bne`, `blt`, `bge`, `bgt`, `ble`,
 
 ## 5. Manual Sequence
 
-Manual sequence rows represent concrete branch executions.
+Manual sequence rows represent concrete branch executions. The v1 UI exposes those rows as an editable table and keeps the canonical text format available for compatibility.
 
 Expected fields:
 
@@ -201,7 +201,7 @@ Main layout:
 
 - Left control sidebar for templates, variants, mode, predictor configuration, statistics, checking, and session import.
 - Main workspace with one active source editor at a time: Didactic C, RISC-V, or Manual sequence.
-- CodeMirror 6 source editors with external C highlighting and presentation-only RISC-V/manual semantic highlighting.
+- CodeMirror 6 source editors with external C highlighting, presentation-only RISC-V highlighting, and raw manual sequence compatibility.
 - Predictor table as the central workspace artifact.
 - Table-adjacent controls for step, back, run all, reset, and export.
 
@@ -219,7 +219,7 @@ Required separation:
 
 ## 13. Current Implementation Status
 
-Synchronization date: 2026-06-18.
+Synchronization date: 2026-06-19.
 
 Status: v1 local release candidate. The local release checklist has passed. Hosted GitHub Pages publication still requires repository Pages source configuration and a published GitHub Release run.
 
@@ -230,14 +230,14 @@ Implemented:
 - LSB, manual, XOR, and concatenation indexing.
 - Initial RISC-V parser.
 - Didactic C translator for supported loop/branch exercises.
-- Editable manual branch sequence text format.
+- Editable manual branch sequence table with canonical text compatibility.
 - YAML with Zod validation and derived-data exclusion.
 - Rich trace-derived table projection for predictor-specific history, index calculation, counter, and aliasing details.
 - CSV/Markdown export.
 - Statistic and table answer checking.
 - Official templates for exercises 1, 2, 3, 4, 5, and 7 are engine-verified against expected official statistics.
 - Functional local MUI/Zustand UI with a TanStack-powered simulation table, left control sidebar, source tabs, and table-centered workspace.
-- CodeMirror 6 editors for Didactic C, RISC-V, and manual branch sequences, including external C highlighting and presentation-only RISC-V/manual semantic highlighting.
+- CodeMirror 6 editors for Didactic C and RISC-V, plus an editable manual sequence table with raw text compatibility.
 - Validated JSON predictor configuration editor connected to the same schema used by YAML import.
 - Playwright e2e coverage for critical run/reveal/check/export flows, manual sequence YAML round trip, template/variant selection, exam leakage guard, and responsive smoke checks.
 - Manual visual/responsive/accessibility review, including mobile table scrolling and keyboard focus checks.

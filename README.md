@@ -38,7 +38,7 @@ Implemented:
 - Rich trace-derived table projection, compact calculations, CSV/Markdown table export, and YAML session export/import.
 - Initial RISC-V parser for conditional branches, labels, addresses, and comments.
 - Didactic C translator for loop/branch exercises; it is not a general C compiler.
-- Editable manual sequence text format with `B1..Bn`, `T/NT`, optional address/index, comments, and repeated ranges.
+- Editable manual sequence table with branch id, outcome, index, address, comments, and raw text compatibility for repeated ranges.
 - Statistic and table answer checking.
 - Official templates for exercises 1, 2, 3, 4, 5, and 7 as versioned, engine-verified data.
 - Functional MUI/Zustand UI for templates, variants, editors, TanStack-powered table, statistics, checking, calculations, and import/export.

@@ -185,12 +185,12 @@ printf(a);`);
     render(<App />);
 
     fireEvent.click(screen.getByRole("tab", { name: "Manual sequence" }));
-    act(() => {
-      useSimulationStore.getState().updateManualSequenceSource("B1 T index=0 # edited\nB1 NT index=0");
-    });
+    fireEvent.change(screen.getByLabelText("Comment 1"), { target: { value: "edited" } });
+    fireEvent.click(screen.getByRole("button", { name: "Add row" }));
+    fireEvent.change(screen.getByLabelText("Outcome 2"), { target: { value: "NT" } });
     fireEvent.click(screen.getByRole("button", { name: "Run all" }));
 
-    expect(screen.getByText("Step 2 / 2")).toBeInTheDocument();
+    expect(screen.getByText("Step 7 / 7")).toBeInTheDocument();
 
     exportOption("Session as YAML");
     const yamlArea = screen.getByRole("textbox", { name: "YAML session" }) as HTMLTextAreaElement;

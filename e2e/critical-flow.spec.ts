@@ -54,9 +54,11 @@ test("round-trips a manually edited sequence through YAML import", async ({ page
   await page.goto("/");
 
   await page.getByRole("tab", { name: "Manual sequence" }).click();
-  await page.getByLabel("Manual sequence").fill("B1 T index=0 # edited\nB1 NT index=0");
+  await page.getByLabel("Comment 1").fill("edited");
+  await page.getByRole("button", { name: "Add row" }).click();
+  await page.getByLabel("Outcome 7").selectOption("NT");
   await page.getByRole("button", { name: "Run all" }).click();
-  await expect(page.getByText("Step 2 / 2")).toBeVisible();
+  await expect(page.getByText("Step 7 / 7")).toBeVisible();
 
   await exportOption(page, "Session as YAML");
   const exportedYaml = await page.getByRole("textbox", { name: "YAML session" }).inputValue();
@@ -74,9 +76,9 @@ test("round-trips a manually edited sequence through YAML import", async ({ page
   await page.getByRole("button", { name: "Import", exact: true }).click();
 
   await page.getByRole("tab", { name: "Manual sequence" }).click();
-  await expect(page.getByLabel("Manual sequence")).toContainText("B1 T index=0 # edited");
-  await expect(page.getByLabel("Manual sequence")).toContainText("B1 NT index=0");
-  await expect(page.getByText("Step 0 / 2")).toBeVisible();
+  await expect(page.getByLabel("Comment 1")).toHaveValue("edited");
+  await expect(page.getByLabel("Outcome 7")).toHaveValue("NT");
+  await expect(page.getByText("Step 0 / 7")).toBeVisible();
 });
 
 test("loads an official template variant and recalculates canonical statistics", async ({ page }) => {
