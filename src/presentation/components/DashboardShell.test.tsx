@@ -150,6 +150,8 @@ printf(a);`);
     const exportArea = screen.getByRole("textbox", { name: "Table export" }) as HTMLTextAreaElement;
     expect(exportArea.value).toContain("| Iteration | Branch |");
     expect(exportArea.value).toContain("| 1 | B1 |");
+    expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Download" })).toBeInTheDocument();
     closeExportDialog();
   });
 
@@ -218,6 +220,7 @@ printf(a);`);
   it("imports a YAML session and restores its editable sources", () => {
     render(<App />);
 
+    openSetupAndAnswers();
     fireEvent.click(screen.getByRole("button", { name: "Import YAML" }));
     expect(screen.getByRole("button", { name: /^Import$/ })).toBeDisabled();
     act(() => {
@@ -269,9 +272,17 @@ function exportOption(name: string) {
 }
 
 function openSection(name: string) {
+  openSetupAndAnswers();
   const button = screen.getByRole("button", { name });
   if (button.getAttribute("aria-expanded") !== "true") {
     fireEvent.click(button);
+  }
+}
+
+function openSetupAndAnswers() {
+  const setupButton = screen.queryByRole("button", { name: /Setup and answers/ });
+  if (setupButton && setupButton.getAttribute("aria-expanded") !== "true") {
+    fireEvent.click(setupButton);
   }
 }
 

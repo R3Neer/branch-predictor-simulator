@@ -275,7 +275,18 @@ function CompactAccordion({
         "&::before": { display: "none" }
       }}
     >
-      <AccordionSummary aria-controls={`${title.toLowerCase()}-panel`} id={`${title.toLowerCase()}-header`}>
+      <AccordionSummary
+        aria-controls={`${title.toLowerCase()}-panel`}
+        expandIcon={<Box component="span" aria-hidden="true">v</Box>}
+        id={`${title.toLowerCase()}-header`}
+        sx={{
+          minHeight: 36,
+          px: 1,
+          "& .MuiAccordionSummary-content": {
+            my: 0.5
+          }
+        }}
+      >
         <Typography component="h2" variant="h2">
           {title}
         </Typography>

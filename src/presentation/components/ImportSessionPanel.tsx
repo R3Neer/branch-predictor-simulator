@@ -24,7 +24,18 @@ export function ImportSessionPanel({
 }: ImportSessionPanelProps) {
   return (
     <Accordion disableGutters elevation={0} sx={{ bgcolor: "transparent", border: 0 }}>
-      <AccordionSummary aria-controls="session-import-panel" id="session-import-header">
+      <AccordionSummary
+        aria-controls="session-import-panel"
+        expandIcon={<span aria-hidden="true">v</span>}
+        id="session-import-header"
+        sx={{
+          minHeight: 36,
+          px: 1,
+          "& .MuiAccordionSummary-content": {
+            my: 0.5
+          }
+        }}
+      >
         <Typography component="h2" variant="h2">
           Import YAML
         </Typography>

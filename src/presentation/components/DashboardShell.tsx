@@ -1,13 +1,14 @@
-import { Alert, Box, Stack, Tab, Tabs, Typography } from "@mui/material";
+import { Alert, Box, Stack, Tab, Tabs, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { CalculationPanel } from "./CalculationPanel";
-import { ConfigurationPanel } from "./ConfigurationPanel";
-import { ImportSessionPanel } from "./ImportSessionPanel";
+import { SetupPanel } from "./SetupPanel";
 import { SimulationTablePanel } from "./SimulationTablePanel";
 import { SourceEditorsPanel } from "./SourceEditorsPanel";
 import { useSimulationStore } from "../stores/simulationStore";
 import { visualTokens } from "../theme/tokens";
 
 export function DashboardShell() {
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
   const {
     templates,
     selectedTemplateId,
@@ -58,6 +59,55 @@ export function DashboardShell() {
     exportTable,
     exportSessionYaml
   } = useSimulationStore();
+  const modeTabs = (
+    <Tabs
+      value={mode}
+      aria-label="Work mode"
+      variant="fullWidth"
+      onChange={(_event, value: "exam" | "solution") => setMode(value)}
+      sx={{
+        bgcolor: visualTokens.color.surfaceSoft,
+        border: 1,
+        borderColor: "divider",
+        borderRadius: 1,
+        minHeight: 40
+      }}
+    >
+      <Tab value="exam" label="Exam" />
+      <Tab value="solution" label="Solution" />
+    </Tabs>
+  );
+  const setupPanel = (
+    <SetupPanel
+      compact={!isDesktop}
+      templates={templates}
+      selectedTemplateId={selectedTemplateId}
+      selectedVariantId={selectedVariantId}
+      activeTitle={activeTitle}
+      activeStatement={activeStatement}
+      activeVariantTitle={activeVariantTitle}
+      traceCount={currentStep}
+      predictorConfigSource={predictorConfigSource}
+      predictorConfigError={predictorConfigError}
+      statAnswerInputs={statAnswerInputs}
+      tableAnswerSource={tableAnswerSource}
+      tableAnswerError={tableAnswerError}
+      correctionReport={correctionReport}
+      statistics={statistics}
+      sessionYamlInput={sessionYamlInput}
+      sessionImportError={sessionImportError}
+      onSelectTemplate={selectTemplate}
+      onSelectVariant={selectVariant}
+      onPredictorConfigSourceChange={updatePredictorConfigSource}
+      onTableAnswerSourceChange={updateTableAnswerSource}
+      onStatAnswerChange={updateStatAnswer}
+      onCheckAnswers={checkAnswers}
+      onCalculateStats={calculateStats}
+      onSessionYamlInputChange={updateSessionYamlInput}
+      onImport={importSessionYaml}
+    />
+  );
+
   return (
     <Box
       sx={{
@@ -67,78 +117,36 @@ export function DashboardShell() {
         minHeight: "100vh"
       }}
     >
-      <Box
-        component="aside"
-        sx={{
-          bgcolor: visualTokens.color.surface,
-          borderBottom: { xs: 1, lg: 0 },
-          borderColor: "divider",
-          borderRight: { lg: 1 },
-          maxHeight: { lg: "100vh" },
-          overflowY: { lg: "auto" },
-          position: { lg: "sticky" },
-          top: 0
-        }}
-      >
-        <Stack
-          spacing={1.5}
+      {isDesktop ? (
+        <Box
+          component="aside"
           sx={{
-            p: 1.5
+            bgcolor: visualTokens.color.surface,
+            borderColor: "divider",
+            borderRight: 1,
+            maxHeight: "100vh",
+            overflowY: "auto",
+            position: "sticky",
+            top: 0
           }}
         >
-          <Box>
-            <Typography component="h1" variant="h1">
-              Branch Predictor Simulator
-            </Typography>
-            <Typography variant="body2">Canonical UCM branch prediction tables.</Typography>
-          </Box>
-          <Tabs
-            value={mode}
-            aria-label="Work mode"
-            variant="fullWidth"
-            onChange={(_event, value: "exam" | "solution") => setMode(value)}
+          <Stack
+            spacing={1.5}
             sx={{
-              bgcolor: visualTokens.color.surfaceSoft,
-              border: 1,
-              borderColor: "divider",
-              borderRadius: 1,
-              minHeight: 40
+              p: 1.5
             }}
           >
-            <Tab value="exam" label="Exam" />
-            <Tab value="solution" label="Solution" />
-          </Tabs>
-          <ConfigurationPanel
-            templates={templates}
-            selectedTemplateId={selectedTemplateId}
-            selectedVariantId={selectedVariantId}
-            activeTitle={activeTitle}
-            activeStatement={activeStatement}
-            activeVariantTitle={activeVariantTitle}
-            traceCount={currentStep}
-            predictorConfigSource={predictorConfigSource}
-            predictorConfigError={predictorConfigError}
-            statAnswerInputs={statAnswerInputs}
-            tableAnswerSource={tableAnswerSource}
-            tableAnswerError={tableAnswerError}
-            correctionReport={correctionReport}
-            statistics={statistics}
-            onSelectTemplate={selectTemplate}
-            onSelectVariant={selectVariant}
-            onPredictorConfigSourceChange={updatePredictorConfigSource}
-            onTableAnswerSourceChange={updateTableAnswerSource}
-            onStatAnswerChange={updateStatAnswer}
-            onCheckAnswers={checkAnswers}
-            onCalculateStats={calculateStats}
-          />
-          <ImportSessionPanel
-            sessionYamlInput={sessionYamlInput}
-            sessionImportError={sessionImportError}
-            onSessionYamlInputChange={updateSessionYamlInput}
-            onImport={importSessionYaml}
-          />
-        </Stack>
-      </Box>
+            <Box>
+              <Typography component="h1" variant="h1">
+                Branch Predictor Simulator
+              </Typography>
+              <Typography variant="body2">Canonical UCM branch prediction tables.</Typography>
+            </Box>
+            {modeTabs}
+            {setupPanel}
+          </Stack>
+        </Box>
+      ) : undefined}
 
       <Stack
         component="main"
@@ -148,6 +156,26 @@ export function DashboardShell() {
           p: { xs: 1.25, md: 2 }
         }}
       >
+        {!isDesktop ? (
+          <Stack
+            spacing={1}
+            sx={{
+              bgcolor: visualTokens.color.surface,
+              border: 1,
+              borderColor: "divider",
+              borderRadius: 1,
+              p: 1.25
+            }}
+          >
+            <Box>
+              <Typography component="h1" variant="h1">
+                Branch Predictor Simulator
+              </Typography>
+              <Typography variant="body2">Canonical UCM branch prediction tables.</Typography>
+            </Box>
+            {modeTabs}
+          </Stack>
+        ) : undefined}
         <SourceEditorsPanel
           cSource={cSource}
           riscVSource={riscVSource}
@@ -188,6 +216,7 @@ export function DashboardShell() {
           calculationViews={calculationViews}
           onRevealCalculations={revealCalculations}
         />
+        {!isDesktop ? setupPanel : undefined}
       </Stack>
     </Box>
   );

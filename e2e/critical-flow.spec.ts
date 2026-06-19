@@ -36,6 +36,8 @@ test("runs, reveals, checks, and exports a simulation", async ({ page }) => {
 
   await exportOption(page, "Table as Markdown");
   await expect(page.getByRole("textbox", { name: "Table export" })).toContainText("| Iteration | Branch |");
+  await expect(page.getByRole("button", { name: "Copy" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Download" })).toBeVisible();
   await closeExportDialog(page);
 
   await exportOption(page, "Session as YAML");
@@ -43,6 +45,8 @@ test("runs, reveals, checks, and exports a simulation", async ({ page }) => {
   await expect(yaml).toContainText("version: 1");
   await expect(yaml).not.toContainText("statistics:");
   await expect(yaml).not.toContainText("tableView:");
+  await expect(page.getByRole("button", { name: "Copy" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Download" })).toBeVisible();
   await closeExportDialog(page);
 });
 
@@ -150,6 +154,7 @@ test("keeps the main workflow reachable on desktop and mobile widths", async ({ 
 
     await expect(page.getByRole("heading", { name: "Branch Predictor Simulator" })).toBeVisible();
     await expect(page.getByLabel("Didactic C")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Source" })).toBeInViewport();
     await expect(page.getByRole("button", { name: "Run all" })).toBeVisible();
     await expect(page.getByRole("tab", { name: "Exam" })).toBeInViewport();
     await expect(page.getByRole("tab", { name: "Solution" })).toBeInViewport();

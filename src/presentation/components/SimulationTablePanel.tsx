@@ -49,11 +49,19 @@ export function SimulationTablePanel({
   onExportSessionYaml
 }: SimulationTablePanelProps) {
   const [exportMenuAnchor, setExportMenuAnchor] = useState<null | HTMLElement>(null);
-  const [activeExport, setActiveExport] = useState<"table" | "yaml" | undefined>();
+  const [activeExport, setActiveExport] = useState<"csv" | "markdown" | "yaml" | undefined>();
+  const [copyStatus, setCopyStatus] = useState<string | undefined>();
   const isExportMenuOpen = Boolean(exportMenuAnchor);
   const exportedContent = activeExport === "yaml" ? exportedSessionYaml : exportedTable;
   const exportedLabel = activeExport === "yaml" ? "YAML session" : "Table export";
-  const exportedTitle = activeExport === "yaml" ? "Session YAML" : "Table export";
+  const exportedTitle =
+    activeExport === "yaml" ? "Session YAML" : activeExport === "csv" ? "Table CSV" : "Table Markdown";
+  const exportFileName =
+    activeExport === "yaml"
+      ? "branch-predictor-session.yaml"
+      : activeExport === "csv"
+        ? "branch-predictor-table.csv"
+        : "branch-predictor-table.md";
   const columns = useMemo<ColumnDef<DynamicTableView["rows"][number]>[]>(
     () =>
       tableView.columns.map((column) => ({
@@ -69,6 +77,29 @@ export function SimulationTablePanel({
     columns,
     getCoreRowModel: getCoreRowModel()
   });
+  const copyExport = () => {
+    if (!exportedContent) {
+      return;
+    }
+
+    void navigator.clipboard
+      ?.writeText(exportedContent)
+      .then(() => setCopyStatus("Copied"))
+      .catch(() => setCopyStatus("Copy failed"));
+  };
+  const downloadExport = () => {
+    if (!exportedContent) {
+      return;
+    }
+
+    const blob = new Blob([exportedContent], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = exportFileName;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <>
@@ -81,10 +112,46 @@ export function SimulationTablePanel({
         }}
       >
         <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={0.75}
+          sx={{ alignItems: { xs: "stretch", sm: "center" }, px: 1.5, pt: 1.25 }}
+        >
+          <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+            <Typography component="h2" variant="h2">
+              Execution trace
+            </Typography>
+          </Box>
+          <Box
+            component="span"
+            sx={{
+              alignSelf: { xs: "flex-start", sm: "center" },
+              bgcolor: visualTokens.color.accentSoft,
+              borderRadius: 999,
+              color: visualTokens.color.accent,
+              fontSize: "0.75rem",
+              fontWeight: 700,
+              px: 1,
+              py: 0.5
+            }}
+          >
+            Step {currentStep} / {totalSteps}
+          </Box>
+        </Stack>
+        <Stack
           direction="row"
           spacing={1}
           useFlexGap
-          sx={{ p: 1.5, alignItems: "center", flexWrap: "wrap" }}
+          sx={{
+            alignItems: "center",
+            display: { xs: "grid", sm: "flex" },
+            flexWrap: "wrap",
+            gridTemplateColumns: { xs: "repeat(2, minmax(0, 1fr))", sm: "none" },
+            p: 1.5,
+            pt: 1,
+            "& .MuiButton-root": {
+              width: { xs: "100%", sm: "auto" }
+            }
+          }}
         >
           <Button
             startIcon={<BackIcon />}
@@ -140,7 +207,8 @@ export function SimulationTablePanel({
               disabled={currentStep === 0}
               onClick={() => {
                 setExportMenuAnchor(null);
-                setActiveExport("table");
+                setCopyStatus(undefined);
+                setActiveExport("csv");
                 onExportCsv();
               }}
             >
@@ -150,7 +218,8 @@ export function SimulationTablePanel({
               disabled={currentStep === 0}
               onClick={() => {
                 setExportMenuAnchor(null);
-                setActiveExport("table");
+                setCopyStatus(undefined);
+                setActiveExport("markdown");
                 onExportMarkdown();
               }}
             >
@@ -159,6 +228,7 @@ export function SimulationTablePanel({
             <MenuItem
               onClick={() => {
                 setExportMenuAnchor(null);
+                setCopyStatus(undefined);
                 setActiveExport("yaml");
                 onExportSessionYaml();
               }}
@@ -166,68 +236,108 @@ export function SimulationTablePanel({
               Session as YAML
             </MenuItem>
           </Menu>
-          <Typography sx={{ ml: { sm: "auto" } }} variant="body2">
-            Step {currentStep} / {totalSteps}
-          </Typography>
         </Stack>
         <Divider />
-        <Box sx={{ overflowX: "auto" }}>
+        <Box sx={{ position: "relative" }}>
           <Box
-            component="table"
-            aria-label="Simulation table"
+            aria-hidden="true"
             sx={{
-              minWidth: 760,
-              width: "100%",
-              borderCollapse: "collapse",
-              "& th, & td": {
-                height: 40,
-                px: 1.25,
-                py: 0.75,
-                borderBottom: 1,
-                borderColor: "divider",
-                textAlign: "left",
-                whiteSpace: "nowrap"
-              },
-              "& th": {
-                bgcolor: visualTokens.color.surfaceMuted,
-                fontWeight: 650,
-                position: "sticky",
-                top: 0,
-                zIndex: 1
-              },
-              "& tbody tr:nth-of-type(even)": {
-                bgcolor: visualTokens.color.surfaceSoft
+              background: `linear-gradient(90deg, rgba(255,255,255,0), ${visualTokens.color.surface})`,
+              bottom: 0,
+              pointerEvents: "none",
+              position: "absolute",
+              right: 0,
+              top: 0,
+              width: 44,
+              zIndex: 3,
+              "&::after": {
+                color: visualTokens.color.textMuted,
+                content: '">"',
+                fontSize: "1.25rem",
+                fontWeight: 700,
+                position: "absolute",
+                right: 8,
+                top: "50%",
+                transform: "translateY(-50%)"
               }
             }}
-          >
-            <thead>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <th key={header.id}>
-                      {header.isPlaceholder
-                        ? undefined
-                        : flexRender(header.column.columnDef.header, header.getContext())}
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody>
-              {table.getRowModel().rows.length === 0 ? (
-                <tr>
-                  <td colSpan={tableView.columns.length}>No executed steps</td>
-                </tr>
-              ) : (
-                table.getRowModel().rows.map((row) => (
-                  <tr key={row.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+          />
+          <Box sx={{ overflowX: "auto" }}>
+            <Box
+              component="table"
+              aria-label="Simulation table"
+              sx={{
+                minWidth: 760,
+                width: "100%",
+                borderCollapse: "collapse",
+                "& th, & td": {
+                  height: 40,
+                  px: 1.25,
+                  py: 0.75,
+                  borderBottom: 1,
+                  borderColor: "divider",
+                  textAlign: "left",
+                  whiteSpace: "nowrap"
+                },
+                "& th:nth-of-type(1), & td:nth-of-type(1)": {
+                  left: 0,
+                  minWidth: 78,
+                  position: "sticky",
+                  zIndex: 2
+                },
+                "& th:nth-of-type(2), & td:nth-of-type(2)": {
+                  left: 78,
+                  minWidth: 72,
+                  position: "sticky",
+                  zIndex: 2
+                },
+                "& td:nth-of-type(1), & td:nth-of-type(2)": {
+                  bgcolor: "inherit"
+                },
+                "& th": {
+                  bgcolor: visualTokens.color.surfaceMuted,
+                  fontWeight: 650,
+                  position: "sticky",
+                  top: 0,
+                  zIndex: 4
+                },
+                "& th:nth-of-type(1), & th:nth-of-type(2)": {
+                  zIndex: 5
+                },
+                "& tbody tr:nth-of-type(even)": {
+                  bgcolor: visualTokens.color.surfaceSoft
+                }
+              }}
+            >
+              <thead>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <tr key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <th key={header.id}>
+                        {header.isPlaceholder
+                          ? undefined
+                          : flexRender(header.column.columnDef.header, header.getContext())}
+                      </th>
                     ))}
                   </tr>
-                ))
-              )}
-            </tbody>
+                ))}
+              </thead>
+              <tbody>
+                {table.getRowModel().rows.length === 0 ? (
+                  <tr>
+                    <td colSpan={tableView.columns.length}>No executed steps</td>
+                  </tr>
+                ) : (
+                  table.getRowModel().rows.map((row) => (
+                    <tr key={row.id}>
+                      {row.getVisibleCells().map((cell) => (
+                        <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                      ))}
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </Box>
           </Box>
         </Box>
       </Paper>
@@ -235,24 +345,49 @@ export function SimulationTablePanel({
         fullWidth
         maxWidth="md"
         open={activeExport !== undefined && exportedContent !== undefined}
+        PaperProps={{
+          sx: {
+            maxHeight: "calc(100vh - 48px)"
+          }
+        }}
         transitionDuration={0}
         onClose={() => setActiveExport(undefined)}
       >
         <DialogTitle>{exportedTitle}</DialogTitle>
-        <DialogContent>
+        <DialogContent sx={{ overflow: "hidden", pb: 1 }}>
+          <Typography sx={{ color: "text.secondary", fontWeight: 650, mb: 0.75 }} variant="body2">
+            {exportedLabel}
+          </Typography>
           <TextField
-            label={exportedLabel}
             multiline
             fullWidth
             minRows={activeExport === "yaml" ? 12 : 8}
             value={exportedContent ?? ""}
+            inputProps={{ "aria-label": exportedLabel }}
             InputProps={{
               readOnly: true,
-              sx: { fontFamily: '"Roboto Mono", Consolas, monospace', fontSize: "0.8125rem" }
+              sx: {
+                bgcolor: visualTokens.color.surfaceSoft,
+                fontFamily: '"Roboto Mono", Consolas, monospace',
+                fontSize: "0.8125rem",
+                "& textarea": {
+                  maxHeight: "min(52vh, 520px)",
+                  overflow: "auto !important"
+                }
+              }
             }}
           />
+          {copyStatus ? (
+            <Typography sx={{ mt: 1 }} variant="body2">
+              {copyStatus}
+            </Typography>
+          ) : undefined}
         </DialogContent>
         <DialogActions>
+          <Button onClick={copyExport}>Copy</Button>
+          <Button variant="contained" onClick={downloadExport}>
+            Download
+          </Button>
           <Button onClick={() => setActiveExport(undefined)}>Close</Button>
         </DialogActions>
       </Dialog>
@@ -319,8 +454,8 @@ function SemanticPill({
         fontSize: "0.75rem",
         fontWeight: 700,
         lineHeight: 1,
-        px: 0.75,
-        py: 0.45
+        px: 0.85,
+        py: 0.5
       }}
     >
       {children}

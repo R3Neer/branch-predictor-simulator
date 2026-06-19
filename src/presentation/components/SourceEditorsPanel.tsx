@@ -69,13 +69,14 @@ export function SourceEditorsPanel({
   return (
     <Paper variant="outlined" sx={{ overflow: "hidden" }}>
       <Stack
-        direction={{ xs: "column", sm: "row" }}
+        direction="row"
         spacing={1}
         sx={{
-          alignItems: { xs: "stretch", sm: "center" },
+          alignItems: "center",
           borderBottom: 1,
           borderColor: "divider",
           bgcolor: visualTokens.color.surfaceSoft,
+          flexWrap: "wrap",
           px: 1.5,
           py: 1
         }}

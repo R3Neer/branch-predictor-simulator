@@ -16,7 +16,7 @@ export const simulatorCodeMirrorTheme = [
     ".cm-content": {
       caretColor: visualTokens.color.accent,
       fontFamily: '"Roboto Mono", Consolas, monospace',
-      minHeight: "15rem",
+      minHeight: "240px",
       padding: "10px 0"
     },
     ".cm-line": {
@@ -36,7 +36,7 @@ export const simulatorCodeMirrorTheme = [
     },
     ".cm-scroller": {
       fontFamily: '"Roboto Mono", Consolas, monospace',
-      maxHeight: "22rem",
+      maxHeight: "240px",
       overflow: "auto"
     },
     ".cm-tooltip": {
@@ -81,6 +81,14 @@ export const simulatorCodeMirrorTheme = [
     ".cm-semantic-repetition": {
       color: visualTokens.color.aliasing,
       fontWeight: 700
+    },
+    "@media (min-width: 1200px)": {
+      ".cm-content": {
+        minHeight: "260px"
+      },
+      ".cm-scroller": {
+        maxHeight: "260px"
+      }
     }
   })
 ];
